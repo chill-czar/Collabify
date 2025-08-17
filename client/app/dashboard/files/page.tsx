@@ -2,7 +2,7 @@ import React from 'react'
 
 const page = () => {
   return (
-    <div>Files page</div>
+    <div className='flex flex-col flex-1'>Files page</div>
   )
 }
 

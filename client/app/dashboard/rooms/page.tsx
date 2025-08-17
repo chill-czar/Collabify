@@ -2,7 +2,7 @@ import React from 'react'
 
 const page = () => {
   return (
-    <div>Rooms page</div>
+    <div className='flex flex-col flex-1'>Rooms page</div>
   )
 }
 
