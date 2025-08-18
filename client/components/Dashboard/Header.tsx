@@ -2,12 +2,13 @@
 
 import React, { useState } from "react";
 import { Search, Plus, Settings, User } from "lucide-react";
+import { SignedIn, UserButton } from "@clerk/nextjs";
 
 const Header = () => {
   const [searchValue, setSearchValue] = useState("");
 
   return (
-    <header className="w-full bg-white border-b border-gray-200 px-3 py-2 sm:px-4 sm:py-3 max-h-15 flex-shrink-0">
+    <header className="w-full bg-white border-b border-gray-200 px-3 py-2 sm:px-4 sm:py-3 max-h-15 flex-shrink-0 sticky top-0">
       <div className="flex items-center justify-between mx-auto">
         {/* Search Bar */}
         <div className="flex-1 max-w-xs sm:max-w-md">
@@ -36,17 +37,12 @@ const Header = () => {
             <Settings className="w-4 h-4 sm:w-5 sm:h-5" />
           </button>
 
-          {/* Notification Badge */}
-          <button className="relative p-1.5 sm:p-2 text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded-lg transition-colors duration-200">
-            <div className="w-4 h-4 sm:w-5 sm:h-5 bg-red-500 rounded-full flex items-center justify-center">
-              <span className="text-white text-xs font-semibold">1</span>
-            </div>
-          </button>
-
           {/* Profile Avatar */}
           <button className="relative">
-            <div className="w-7 h-7 sm:w-8 sm:h-8 bg-gradient-to-br from-blue-400 to-purple-500 rounded-full flex items-center justify-center hover:shadow-md transition-shadow duration-200">
-              <User className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-white" />
+            <div className="w-7 h-7 sm:w-8 sm:h-8  rounded-full flex items-center justify-center hover:shadow-md transition-shadow duration-200">
+              <SignedIn>
+                <UserButton />
+              </SignedIn>
             </div>
           </button>
         </div>

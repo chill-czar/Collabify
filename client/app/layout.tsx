@@ -4,6 +4,7 @@ import "./globals.css";
 import ReduxProvider from "../providers/ReduxProvider";
 import QueryProvider from '../providers/QueryProvider';
 import { ClerkProvider } from "@clerk/nextjs";
+import SyncUser from "@/components/ui/SyncUser";
 
 
 const geistSans = Geist({
@@ -34,6 +35,7 @@ export default function RootLayout({
         >
           <QueryProvider>
             <ReduxProvider>
+                    <SyncUser />
               {children}</ReduxProvider>
           </QueryProvider>
         </body>

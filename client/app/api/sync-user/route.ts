@@ -7,7 +7,7 @@ export async function POST() {
     const clerkUser = await currentUser();
     if (!clerkUser)
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-console.log(clerkUser)
+// console.log(clerkUser)
     const email =
       clerkUser.emailAddresses?.[0]?.emailAddress ??
       clerkUser.primaryEmailAddress?.emailAddress ??

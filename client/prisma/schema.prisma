@@ -33,7 +33,11 @@ model User {
   videoCalls       VideoCall[]
   callParticipants CallParticipant[]
   projectMembers   ProjectMember[]
+  invitesReceived  ProjectInvite[]   @relation("UserInvitesReceived")
+  invitesSent      ProjectInvite[]   @relation("UserInvitesSent")
+  notifications    Notification[]
 }
+
 
 
 
@@ -43,16 +47,55 @@ model Project {
   description String?
   createdAt   DateTime @default(now())
   createdBy   String   @db.ObjectId
+  visibility  String
+  projectType String
+  startDate   DateTime @default(now())
+  dueDate     DateTime
+  tags        String[]
+  color       String
 
-  // Relation fields
-  creator     User            @relation("CreatedByUser", fields: [createdBy], references: [id])
+  // Relations
+  creator     User      @relation("CreatedByUser", fields: [createdBy], references: [id])
   members     ProjectMember[]
+  invites     ProjectInvite[]
   files       File[]
   notes       Note[]
   whiteboards Whiteboard[]
   tasks       Task[]
   videoCalls  VideoCall[]
 }
+model ProjectInvite {
+  id            String   @id @default(auto()) @map("_id") @db.ObjectId
+  projectId     String   @db.ObjectId
+  invitedUserId String   @db.ObjectId
+  inviterId     String   @db.ObjectId
+  permissions   Json
+  status        String   @default("pending") // pending, accepted, declined
+  createdAt     DateTime @default(now())
+  expiresAt     DateTime?
+  acceptedAt    DateTime?
+
+  project     Project @relation(fields: [projectId], references: [id])
+  invitedUser User    @relation("UserInvitesReceived", fields: [invitedUserId], references: [id])
+  inviter     User    @relation("UserInvitesSent", fields: [inviterId], references: [id])
+  notifications Notification[]
+}
+
+model Notification {
+  id        String   @id @default(auto()) @map("_id") @db.ObjectId
+  userId    String   @db.ObjectId
+  inviteId  String?  @db.ObjectId  // link to ProjectInvite if notification is about invite
+  type      String   // invite, message, update
+  content   String
+  read      Boolean  @default(false)
+  createdAt DateTime @default(now())
+
+  user   User          @relation(fields: [userId], references: [id])
+  invite ProjectInvite? @relation(fields: [inviteId], references: [id])
+}
+
+
+
 
 model ProjectMember {
   id          String   @id @default(auto()) @map("_id") @db.ObjectId
