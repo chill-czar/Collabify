@@ -118,7 +118,7 @@ export const declineInvite = async (
 ): Promise<ApiResponse<null>> => {
   try {
     // Real API call to decline invite
-    const response = await api.post("/api/project-invite/decline", {
+    const response = await api.post("/users/notifications/decline", {
       notificationId,
       inviteId: invite.id,
       projectId: invite.projectId,
