@@ -24,7 +24,6 @@ export async function getCurrentUserId(
 export async function GET(req: NextRequest) {
   try {
     const userId = await getCurrentUserId(req);
-    console.log(userId);
 
     if (!userId) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });

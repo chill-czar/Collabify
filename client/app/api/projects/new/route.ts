@@ -18,7 +18,6 @@ export async function POST(req: Request) {
       tags = [],
       color,
     } = body;
-    console.log(members) 
     const user = await currentUser();
     const creatorEmail = user?.emailAddresses[0]?.emailAddress;
 

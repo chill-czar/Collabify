@@ -107,8 +107,6 @@ const ProjectCreationForm: React.FC = () => {
     const handler = setTimeout(async () => {
       setIsSearching(true);
       const results = await searchUsers(memberInput); // your fixed searchUsers
-      // console.log(results)
-      console.log("search User Called....");
       setSuggestions(results);
       setShowDropdown(results.length > 0);
       setIsSearching(false);
@@ -295,7 +293,6 @@ const ProjectCreationForm: React.FC = () => {
     try {
       // Simulate API call - replace with actual API endpoint
       await new Promise((resolve) => setTimeout(resolve, 2000));
-      console.log(suggestions)
       // In real implementation, replace with:
       await api.post("/projects/new", {
         name,
