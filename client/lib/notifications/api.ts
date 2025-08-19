@@ -73,13 +73,14 @@ export const fetchNotifications = async (): Promise<Notification[]> => {
 export const markAsRead = async (id: string): Promise<ApiResponse<null>> => {
   try {
     // Uncomment when your API is ready
-    // const response = await api.post(`/notifications/${id}/read`);
-    // return response.data;
+    console.log("Notification Id",id)
+    const response = await api.post(`/users/notifications/${id}/read`);
+    return response.data;
 
     // Mock implementation
-    return new Promise((resolve) => {
-      setTimeout(() => resolve({ success: true }), 200);
-    });
+    // return new Promise((resolve) => {
+    //   setTimeout(() => resolve({ success: true }), 200);
+    // });
   } catch (error) {
     console.error("Error marking notification as read:", error);
     throw error;
