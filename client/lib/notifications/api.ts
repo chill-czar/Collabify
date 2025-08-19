@@ -92,7 +92,7 @@ export const acceptInvite = async (
 ): Promise<ApiResponse<null>> => {
   try {
     // Real API call to accept invite
-    const response = await api.post("/users/notificatioh/accept", {
+    const response = await api.post("/users/notifications/accept", {
       notificationId,
       inviteId: invite.id,
       projectId: invite.projectId,
