@@ -17,7 +17,7 @@ interface FormData {
   name: string;
   description: string;
   visibility: "Private" | "Public" | "Team";
-  projectType: "Personal" | "Team" | "Client";
+  projectType: "design" | "development" | "research" | "marketing" | "other";
   startDate: string;
   dueDate: string;
   members: string[];
@@ -39,7 +39,7 @@ const ProjectCreationForm: React.FC = () => {
     name: "",
     description: "",
     visibility: "Private",
-    projectType: "Personal",
+    projectType: "other",
     startDate: getTodayDate(),
     dueDate: "",
     members: [],
@@ -259,7 +259,7 @@ const ProjectCreationForm: React.FC = () => {
       name: "",
       description: "",
       visibility: "Private",
-      projectType: "Personal",
+      projectType: "other",
       startDate: getTodayDate(),
       dueDate: "",
       members: [],
