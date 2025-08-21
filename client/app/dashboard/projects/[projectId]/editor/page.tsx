@@ -12,7 +12,7 @@ import {
 import Notes from "@/components/editor/Notes";
 import WhiteBoard from "@/components/editor/WhiteBoard";
 import VideoCall from "@/components/editor/VideoCall";
-import Files from "@/components/editor/Files";
+import Files from "@/components/editor/files/Files";
 
 type FileType = "figma" | "pdf" | "excel" | "image";
 
