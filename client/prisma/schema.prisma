@@ -23,6 +23,12 @@ model User {
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
 
+  uploadedFiles     File[]          @relation("UploadedFiles")
+  createdFolders    Folder[]
+  fileAccess        FileAccess[]
+  grantedFileAccess FileAccess[]    @relation("GrantedFileAccess")
+  shareLinks        FileShareLink[]
+
   // Relations
   createdProjects  Project[]         @relation("CreatedByUser")
   tasks            Task[]            @relation("UserTasksAssigned")
@@ -38,9 +44,6 @@ model User {
   notifications    Notification[]
 }
 
-
-
-
 model Project {
   id          String   @id @default(auto()) @map("_id") @db.ObjectId
   name        String
@@ -54,48 +57,48 @@ model Project {
   tags        String[]
   color       String
 
+  files   File[]
+  folders Folder[]
+
   // Relations
-  creator     User      @relation("CreatedByUser", fields: [createdBy], references: [id])
+  creator     User            @relation("CreatedByUser", fields: [createdBy], references: [id])
   members     ProjectMember[]
   invites     ProjectInvite[]
-  files       File[]
   notes       Note[]
   whiteboards Whiteboard[]
   tasks       Task[]
   videoCalls  VideoCall[]
 }
+
 model ProjectInvite {
-  id            String   @id @default(auto()) @map("_id") @db.ObjectId
-  projectId     String   @db.ObjectId
-  invitedUserId String   @db.ObjectId
-  inviterId     String   @db.ObjectId
+  id            String    @id @default(auto()) @map("_id") @db.ObjectId
+  projectId     String    @db.ObjectId
+  invitedUserId String    @db.ObjectId
+  inviterId     String    @db.ObjectId
   permissions   Json
-  status        String   @default("pending") // pending, accepted, declined
-  createdAt     DateTime @default(now())
+  status        String    @default("pending") // pending, accepted, declined
+  createdAt     DateTime  @default(now())
   expiresAt     DateTime?
   acceptedAt    DateTime?
 
-  project     Project @relation(fields: [projectId], references: [id])
-  invitedUser User    @relation("UserInvitesReceived", fields: [invitedUserId], references: [id])
-  inviter     User    @relation("UserInvitesSent", fields: [inviterId], references: [id])
+  project       Project        @relation(fields: [projectId], references: [id])
+  invitedUser   User           @relation("UserInvitesReceived", fields: [invitedUserId], references: [id])
+  inviter       User           @relation("UserInvitesSent", fields: [inviterId], references: [id])
   notifications Notification[]
 }
 
 model Notification {
   id        String   @id @default(auto()) @map("_id") @db.ObjectId
   userId    String   @db.ObjectId
-  inviteId  String?  @db.ObjectId  // link to ProjectInvite if notification is about invite
-  type      String   // invite, message, update
+  inviteId  String?  @db.ObjectId // link to ProjectInvite if notification is about invite
+  type      String // invite, message, update
   content   String
   read      Boolean  @default(false)
   createdAt DateTime @default(now())
 
-  user   User          @relation(fields: [userId], references: [id])
+  user   User           @relation(fields: [userId], references: [id])
   invite ProjectInvite? @relation(fields: [inviteId], references: [id])
 }
-
-
-
 
 model ProjectMember {
   id          String   @id @default(auto()) @map("_id") @db.ObjectId
@@ -108,19 +111,171 @@ model ProjectMember {
   user        User     @relation(fields: [userId], references: [id])
 }
 
+// ==========================
+// FILE MANAGEMENT
+// ==========================
 model File {
-  id         String   @id @default(auto()) @map("_id") @db.ObjectId
-  projectId  String   @db.ObjectId
-  uploadedBy String   @db.ObjectId
-  name       String
-  type       String
-  size       Float
-  url        String
-  version    Int      @default(1)
-  createdAt  DateTime @default(now())
-  updatedAt  DateTime @updatedAt
-  project    Project  @relation(fields: [projectId], references: [id])
-  user       User     @relation(fields: [uploadedBy], references: [id])
+  id String @id @default(auto()) @map("_id") @db.ObjectId
+
+  fileName String
+  fileType String
+  fileSize Float
+  fileUrl  String
+
+  category    FileCategory @default(DOCUMENT)
+  tags        String[]
+  description String?
+
+  projectId String  @db.ObjectId
+  project   Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
+
+  uploadedBy String @db.ObjectId
+  uploader   User   @relation("UploadedFiles", fields: [uploadedBy], references: [id], onDelete: Cascade)
+
+  // ✅ Fixed self-relation (set NoAction on parentFile)
+  version      Int     @default(1)
+  parentFileId String? @db.ObjectId
+  parentFile   File?   @relation("FileVersions", fields: [parentFileId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  versions     File[]  @relation("FileVersions")
+
+  status        FileStatus @default(ACTIVE)
+  isStarred     Boolean    @default(false)
+  downloadCount Int        @default(0)
+
+  folderId String? @db.ObjectId
+  folder   Folder? @relation(fields: [folderId], references: [id], onDelete: SetNull)
+
+  visibility  FileVisibility  @default(PROJECT_MEMBERS)
+  accessUsers FileAccess[]
+  shareLinks  FileShareLink[]
+
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  deletedAt DateTime?
+
+  userId String? @db.ObjectId
+  User   User?   @relation(fields: [userId], references: [id])
+
+  @@index([projectId])
+  @@index([uploadedBy])
+  @@index([parentFileId])
+  @@index([folderId])
+  @@index([status])
+  @@index([createdAt])
+  @@index([fileName])
+  @@map("files")
+}
+
+model Folder {
+  id          String  @id @default(auto()) @map("_id") @db.ObjectId
+  name        String
+  description String?
+  color       String?
+
+  projectId String  @db.ObjectId
+  project   Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
+
+  createdBy String @db.ObjectId
+  creator   User   @relation(fields: [createdBy], references: [id], onDelete: Cascade)
+
+  // ✅ Fixed self-relation (set NoAction on parentFolder)
+  parentFolderId String?  @db.ObjectId
+  parentFolder   Folder?  @relation("NestedFolders", fields: [parentFolderId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  subFolders     Folder[] @relation("NestedFolders")
+
+  files File[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([projectId])
+  @@index([parentFolderId])
+  @@index([createdBy])
+  @@map("folders")
+}
+
+model FileAccess {
+  id        String @id @default(auto()) @map("_id") @db.ObjectId
+  fileId    String @db.ObjectId
+  userId    String @db.ObjectId
+  grantedBy String @db.ObjectId
+
+  file    File @relation(fields: [fileId], references: [id], onDelete: Cascade)
+  user    User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  granter User @relation("GrantedFileAccess", fields: [grantedBy], references: [id])
+
+  permission FilePermission @default(VIEW)
+  createdAt  DateTime       @default(now())
+  expiresAt  DateTime?
+
+  // Keep only this unique constraint, remove duplicates
+  @@unique([fileId, userId])
+  @@map("file_access")
+}
+
+model FileShareLink {
+  id        String @id @default(auto()) @map("_id") @db.ObjectId
+  fileId    String @db.ObjectId
+  createdBy String @db.ObjectId
+
+  file    File @relation(fields: [fileId], references: [id], onDelete: Cascade)
+  creator User @relation(fields: [createdBy], references: [id], onDelete: Cascade)
+
+  shareToken String         @unique
+  password   String?
+  permission FilePermission @default(VIEW)
+
+  maxDownloads     Int?
+  currentDownloads Int  @default(0)
+
+  expiresAt      DateTime?
+  lastAccessedAt DateTime?
+  accessCount    Int       @default(0)
+
+  isActive  Boolean  @default(true)
+  createdAt DateTime @default(now())
+
+  // Remove any @@index([shareToken]) duplicates — @unique already creates an index
+  @@index([fileId])
+  @@index([expiresAt])
+  @@map("file_share_links")
+}
+
+// ==========================
+// ENUMS
+// ==========================
+
+enum FileCategory {
+  DOCUMENT
+  IMAGE
+  VIDEO
+  AUDIO
+  CODE
+  DESIGN
+  ARCHIVE
+  SPREADSHEET
+  OTHER
+}
+
+enum FileStatus {
+  ACTIVE
+  DELETED
+  ARCHIVED
+  PROCESSING
+  QUARANTINED
+}
+
+enum FileVisibility {
+  PUBLIC
+  PROJECT_MEMBERS
+  SPECIFIC_USERS
+  PRIVATE
+}
+
+enum FilePermission {
+  VIEW
+  EDIT
+  ADMIN
 }
 
 model Note {
