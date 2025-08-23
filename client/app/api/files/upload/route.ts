@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { currentUser } from "@clerk/nextjs/server";
 import { FileCategory, PrismaClient } from "@prisma/client";
 import { PutObjectCommand, S3Client } from "@aws-sdk/client-s3";
+import { ObjectId } from "mongodb";
 
 const prisma = new PrismaClient();
 const s3 = new S3Client({ region: process.env.AWS_REGION });
@@ -9,9 +10,9 @@ const BUCKET = process.env.AWS_S3_BUCKET_NAME!;
 
 export async function POST(req: Request) {
   try {
-    // const clerkUser = await currentUser();
-    // if (!clerkUser)
-    //   return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    const clerkUser = await currentUser();
+    if (!clerkUser)
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
     const form = await req.formData();
     const file = form.get("file") as File | null;
@@ -46,27 +47,34 @@ export async function POST(req: Request) {
         ContentType: file.type,
       })
     );
+
+    // Validate category
     const validCategories = Object.values(FileCategory);
-    if (!validCategories.includes(category.toUpperCase() as FileCategory)) {
+    if (!validCategories.includes(category?.toUpperCase() as FileCategory)) {
       category = FileCategory.OTHER;
     }
-
     const categoryEnum: FileCategory =
       (category?.toUpperCase() as FileCategory) || FileCategory.OTHER;
-    // Save metadata in DB after successful upload
 
+    // Lookup user
     const user = await prisma.user.findUnique({
       where: { clerkId: "user_31TGF6kLrmgc5ZuCxiAp8ywbUbU" },
     });
+
+    if (!user) {
+      return NextResponse.json({ error: "User not found" }, { status: 404 });
+    }
+
+    // ✅ Store ObjectIds as hex strings (Prisma expects string)
     const fileRecord = await prisma.file.create({
       data: {
         fileName,
         fileType: file.type,
         fileSize: file.size,
         fileUrl: s3Key,
-        projectId,
-        folderId: folderId || undefined,
-        uploadedBy: user!.id,
+        projectId: new ObjectId(projectId).toHexString(),
+        folderId: folderId ? new ObjectId(folderId).toHexString() : null,
+        uploadedBy: new ObjectId(user.id).toHexString(),
         category: categoryEnum,
         description: description || null,
         tags,
