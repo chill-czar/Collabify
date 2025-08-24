@@ -1,7 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
 import prisma from "@/lib/prisma";
-import { randomUUID } from "crypto";
 import { currentUser } from "@clerk/nextjs/server";
 
 /* ----------------------------- Schemas ---------------------------- */
@@ -71,7 +70,7 @@ export async function POST(req: NextRequest) {
         },
         { status: 400 }
       );
-    }
+    } 
 
     const { projectId, name, parentFolderId, description, metadata } =
       parsed.data;
@@ -205,7 +204,6 @@ export async function POST(req: NextRequest) {
 
     // Create folder
     const now = new Date();
-    const folderId = randomUUID();
    const created = await prisma.folder.create({
      data: {
        // id: folderId, // remove this

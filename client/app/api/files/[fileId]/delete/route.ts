@@ -20,20 +20,18 @@
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
 import { currentUser } from "@clerk/nextjs/server"; // provided snippet used currentUser()
-import { PrismaClient } from "@prisma/client";
 import {
-  S3Client,
   DeleteObjectCommand,
   DeleteObjectCommandOutput,
 } from "@aws-sdk/client-s3";
 import { s3 } from "@/lib/s3";
+import prisma from "@/lib/prisma";
 
 //
 // ---------- Configuration / Clients (adjust paths/vars as needed) ----------
 //
 
-// Prisma singleton - replace with your existing prisma export.
-const prisma = new PrismaClient();
+
 
 // S3 client config from env
 const S3_BUCKET = process.env.AWS_S3_BUCKET_NAME!;
@@ -216,12 +214,12 @@ export async function DELETE(
 ) {
   try {
     // 1) Authentication
-    // const clerkUser = await currentUser();
-    // if (!clerkUser) {
-    //   return errorResponse(401, "Unauthorized: missing Clerk session");
-    // }
-    // const clerkId = clerkUser.id; // Clerk user id (external). We'll map to our User via clerkId.
-    const clerkId = "user_31TGF6kLrmgc5ZuCxiAp8ywbUbU"; // Clerk user id (external). We'll map to our User via clerkId.
+    const clerkUser = await currentUser();
+    if (!clerkUser) {
+      return errorResponse(401, "Unauthorized: missing Clerk session");
+    }
+    const clerkId = clerkUser.id; // Clerk user id (external). We'll map to our User via clerkId.
+    // const clerkId = "user_31TGF6kLrmgc5ZuCxiAp8ywbUbU"; // Clerk user id (external). We'll map to our User via clerkId.
 
     // 2) Validate path param
     const fileId = params?.fileId;
