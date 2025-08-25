@@ -1,11 +1,9 @@
 "use client";
 import React, { useState } from "react";
 import {
-  Upload,
   FileText,
   PenTool,
   Video,
-  Search,
   Users,
   Share2,
 } from "lucide-react";
@@ -14,15 +12,6 @@ import WhiteBoard from "@/components/editor/WhiteBoard";
 import VideoCall from "@/components/editor/VideoCall";
 import Files from "@/components/editor/files/Files";
 
-type FileType = "figma" | "pdf" | "excel" | "image";
-
-interface FileItem {
-  name: string;
-  size: string;
-  author: string;
-  date: string;
-  type: FileType;
-}
 
 const FileManagerTabs = () => {
   const [activeTab, setActiveTab] = useState<string>("Files");
@@ -34,36 +23,6 @@ const FileManagerTabs = () => {
     { name: "Video Call", icon: Video },
   ];
 
-  const files: FileItem[] = [
-    {
-      name: "Homepage_Design.figma",
-      size: "2.4 MB",
-      author: "John Doe",
-      date: "2024-01-15",
-      type: "figma",
-    },
-    {
-      name: "Brand_Guidelines.pdf",
-      size: "1.8 MB",
-      author: "Jane Smith",
-      date: "2024-01-14",
-      type: "pdf",
-    },
-    {
-      name: "User_Research.xlsx",
-      size: "856 KB",
-      author: "Mike Johnson",
-      date: "2024-01-13",
-      type: "excel",
-    },
-    {
-      name: "Logo_Variations.png",
-      size: "1.2 MB",
-      author: "Sarah Wilson",
-      date: "2024-01-12",
-      type: "image",
-    },
-  ];
 
   return (
     <div className="w-full mx-auto bg-white min-h-screen">
@@ -117,3 +76,5 @@ const FileManagerTabs = () => {
 };
 
 export default FileManagerTabs;
+
+
