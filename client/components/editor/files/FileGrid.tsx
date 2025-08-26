@@ -5,6 +5,7 @@ import { FolderTile } from "./FolderTile";
 import { EmptyState } from "./EmptyState";
 import { useFiles } from "@/lib/files/api";
 import { Loading } from "@/components/editor/files/Loading";
+import Breadcrumbs from "./Breadcrumbs";
 
 interface FileGridProps {
   projectId: string;
@@ -53,15 +54,27 @@ export const FileGrid: React.FC<FileGridProps> = ({
         <div className="flex items-center justify-center p-8 sm:p-12">
           <div className="text-center max-w-md">
             <div className="w-12 h-12 mx-auto mb-4 rounded-full bg-red-50 flex items-center justify-center">
-              <svg className="w-6 h-6 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16c-.77.833.192 2.5 1.732 2.5z" />
+              <svg
+                className="w-6 h-6 text-red-600"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth="2"
+                  d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16c-.77.833.192 2.5 1.732 2.5z"
+                />
               </svg>
             </div>
             <h3 className="text-lg font-semibold text-gray-900 mb-2">
               Error loading files
             </h3>
             <p className="text-sm text-gray-600 leading-relaxed">
-              {error instanceof Error ? error.message : "Something went wrong loading your files. Please try again."}
+              {error instanceof Error
+                ? error.message
+                : "Something went wrong loading your files. Please try again."}
             </p>
           </div>
         </div>
@@ -116,14 +129,14 @@ export const FileGrid: React.FC<FileGridProps> = ({
 
   return (
     <div className="w-full h-full bg-white">
-
+      <Breadcrumbs />
       {/* Grid Container */}
       <div className="p-4 sm:p-6 lg:p-8">
         <div className="grid grid-cols-1 xs:grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-5 gap-3 sm:gap-4 lg:gap-6">
           {/* Render Folders First */}
           {filteredFolders.map((folder) => (
-            <div 
-              key={`folder-${folder.id}`} 
+            <div
+              key={`folder-${folder.id}`}
               className="group relative transition-all duration-200 hover:scale-[1.02]"
             >
               <FolderTile
@@ -138,8 +151,8 @@ export const FileGrid: React.FC<FileGridProps> = ({
 
           {/* Render Files */}
           {filteredFiles.map((file) => (
-            <div 
-              key={`file-${file.id}`} 
+            <div
+              key={`file-${file.id}`}
               className="group relative transition-all duration-200 hover:scale-[1.02]"
             >
               <FileCard

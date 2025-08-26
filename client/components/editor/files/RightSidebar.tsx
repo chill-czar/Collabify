@@ -53,19 +53,7 @@ export const RightSidebar: React.FC<RightSidebarProps> = ({
 
   if (!item) return null;
 
-  const handleDelete = async () => {
-    try {
-      if (type === "file") {
-        await deleteFile.mutateAsync(item.id);
-      } else {
-        await deleteFolder.mutateAsync({ folderId: item.id, force: true });
-      }
-      onClose();
-    } catch (error) {
-      console.error(`Failed to delete ${type}:`, error);
-    }
-  };
-
+  
   const handleRename = async () => {
     if (
       newName.trim() &&
@@ -92,22 +80,6 @@ export const RightSidebar: React.FC<RightSidebarProps> = ({
     }
   };
 
-  const handleDownload = () => {
-    if (type === "file" && item.fileUrl) {
-      window.open(item.fileUrl, "_blank");
-    }
-  };
-
-  const handleOpen = () => {
-    if (type === "file" && item.fileUrl) {
-      window.open(item.fileUrl, "_blank");
-    }
-  };
-
-  // Dummy handlers
-  const handleCopy = () => console.log(`Copy ${type}:`, item.id);
-  const handleMove = () => console.log(`Move ${type}:`, item.id);
-  const handleShare = () => console.log(`Share ${type}:`, item.id);
 
   const isLoading =
     deleteFile.isPending ||
@@ -145,7 +117,7 @@ export const RightSidebar: React.FC<RightSidebarProps> = ({
         ) : (
           <div className="flex flex-col h-full bg-white">
             {/* Header */}
-            <div className="flex items-center justify-between px-6 py-4 border-b border-gray-200 bg-gray-50/50">
+            <div className="flex items-center justify-between px-6 py-2 border-b border-gray-200 bg-gray-50/50">
               <h2
                 id="sidebar-title"
                 className="text-lg font-semibold text-gray-900 tracking-tight"
