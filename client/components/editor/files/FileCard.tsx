@@ -139,13 +139,13 @@ export const FileCard: React.FC<FileCardProps> = ({
                 <source src={file.fileUrl} />
               </video>
               <div className="absolute inset-0 bg-black bg-opacity-20 flex items-center justify-center">
-                <div className="w-12 h-12 bg-white bg-opacity-90 rounded-full flex items-center justify-center">
-                  <div className="w-0 h-0 border-l-4 border-l-gray-800 border-t-2 border-b-2 border-t-transparent border-b-transparent ml-1"></div>
+                <div className="w-8 h-8 sm:w-10 sm:h-10 md:w-12 md:h-12 bg-white bg-opacity-90 rounded-full flex items-center justify-center">
+                  <div className="w-0 h-0 border-l-2 sm:border-l-3 md:border-l-4 border-l-gray-800 border-t-1 border-b-1 sm:border-t-2 sm:border-b-2 border-t-transparent border-b-transparent ml-0.5 sm:ml-1"></div>
                 </div>
               </div>
             </>
           ) : (
-            <div className="w-16 h-16 text-white">
+            <div className="w-12 h-12 sm:w-16 sm:h-16 md:w-20 md:h-20 lg:w-24 lg:h-24 xl:w-28 xl:h-28 text-white">
               <FileIcon fileType={file.fileType} category={file.category} />
             </div>
           )}
@@ -156,15 +156,15 @@ export const FileCard: React.FC<FileCardProps> = ({
     // Document preview placeholder
     if (isPDF || isDocument) {
       return (
-        <div className="w-full h-full bg-gray-50 flex flex-col items-center justify-center p-4">
-          <div className="w-16 h-16 mb-2">
+        <div className="w-full h-full bg-gray-50 flex flex-col items-center justify-center p-2 sm:p-3 md:p-4">
+          <div className="w-12 h-12 sm:w-16 sm:h-16 md:w-20 md:h-20 lg:w-24 lg:h-24 xl:w-28 xl:h-28 mb-1 sm:mb-2">
             <FileIcon fileType={file.fileType} category={file.category} />
           </div>
-          <div className="w-full h-20 bg-white border border-gray-200 rounded shadow-sm flex flex-col justify-center px-3">
-            <div className="h-1 bg-gray-200 rounded mb-1"></div>
-            <div className="h-1 bg-gray-200 rounded mb-1 w-4/5"></div>
-            <div className="h-1 bg-gray-200 rounded mb-1"></div>
-            <div className="h-1 bg-gray-200 rounded w-3/5"></div>
+          <div className="w-full h-12 sm:h-16 md:h-20 bg-white border border-gray-200 rounded shadow-sm flex flex-col justify-center px-2 sm:px-3 space-y-1">
+            <div className="h-0.5 sm:h-1 bg-gray-200 rounded"></div>
+            <div className="h-0.5 sm:h-1 bg-gray-200 rounded w-4/5"></div>
+            <div className="h-0.5 sm:h-1 bg-gray-200 rounded"></div>
+            <div className="h-0.5 sm:h-1 bg-gray-200 rounded w-3/5"></div>
           </div>
         </div>
       );
@@ -173,7 +173,7 @@ export const FileCard: React.FC<FileCardProps> = ({
     // Default file icon
     return (
       <div className="w-full h-full bg-gray-50 flex items-center justify-center">
-        <div className="w-16 h-16">
+        <div className="w-12 h-12 sm:w-16 sm:h-16 md:w-20 md:h-20 lg:w-24 lg:h-24 xl:w-28 xl:h-28">
           <FileIcon fileType={file.fileType} category={file.category} />
         </div>
       </div>
@@ -185,18 +185,18 @@ export const FileCard: React.FC<FileCardProps> = ({
   }
 
   return (
-    <div className="relative group">
+    <div className="relative group w-full">
       <div
         className={`
           bg-white border border-gray-200 rounded-lg shadow-sm transition-all duration-200 cursor-pointer 
-          hover:shadow-md hover:scale-[1.02]
+          hover:shadow-md hover:scale-[1.02] w-full h-full flex flex-col
           ${isSelected ? "ring-2 ring-blue-500 shadow-md" : ""}
         `}
         onClick={handleCardClick}
       >
         {/* Header Row */}
-        <div className="flex items-start justify-between p-3 pb-2">
-          <div className="flex-1 min-w-0 pr-2">
+        <div className="flex items-start justify-between p-2 sm:p-3 pb-1 sm:pb-2 flex-shrink-0">
+          <div className="flex-1 min-w-0 pr-1 sm:pr-2">
             {isRenaming ? (
               <input
                 type="text"
@@ -210,13 +210,13 @@ export const FileCard: React.FC<FileCardProps> = ({
                     setNewFileName(file.fileName);
                   }
                 }}
-                className="w-full text-sm font-medium text-gray-900 bg-transparent border-b border-blue-500 px-0 py-1 outline-none"
+                className="w-full text-xs sm:text-sm font-medium text-gray-900 bg-transparent border-b border-blue-500 px-0 py-1 outline-none"
                 autoFocus
                 onClick={(e) => e.stopPropagation()}
               />
             ) : (
               <h3
-                className="text-sm font-medium text-gray-900 truncate"
+                className="text-xs sm:text-sm font-medium text-gray-900 truncate leading-tight"
                 title={file.fileName}
               >
                 {file.fileName}
@@ -227,30 +227,32 @@ export const FileCard: React.FC<FileCardProps> = ({
           {/* Three-dots Menu */}
           <button
             onClick={handleMenuClick}
-            className="w-6 h-6 flex items-center justify-center rounded-full opacity-0 group-hover:opacity-100 hover:bg-gray-100 transition-all duration-200 flex-shrink-0"
+            className="w-5 h-5 sm:w-6 sm:h-6 flex items-center justify-center rounded-full opacity-0 group-hover:opacity-100 hover:bg-gray-100 transition-all duration-200 flex-shrink-0"
             aria-label="File options"
           >
-            <MoreVertical className="w-4 h-4 text-gray-600" />
+            <MoreVertical className="w-3 h-3 sm:w-4 sm:h-4 text-gray-600" />
           </button>
         </div>
 
-        {/* Preview Section */}
-        <div className="mx-3 mb-3 h-32 rounded-md overflow-hidden bg-gray-100 border border-gray-200">
-          {getPreviewContent()}
+        {/* Preview Section - Matches folder icon height exactly */}
+        <div className="mx-2 sm:mx-3 mb-2 sm:mb-3 flex-1 flex items-center justify-center">
+          <div className="w-full h-20 sm:h-24 md:h-28 lg:h-32 xl:h-36 rounded-md overflow-hidden bg-gray-100 border border-gray-200">
+            {getPreviewContent()}
+          </div>
         </div>
 
         {/* Footer Section */}
-        <div className="px-3 pb-3 flex items-center space-x-2">
+        <div className="px-2 sm:px-3 pb-2 sm:pb-3 flex items-center space-x-1 sm:space-x-2 flex-shrink-0">
           {/* User Avatar */}
           <div className="flex-shrink-0">
             {uploaderAvatar ? (
               <img
                 src={uploaderAvatar}
                 alt={uploaderName}
-                className="w-5 h-5 rounded-full"
+                className="w-4 h-4 sm:w-5 sm:h-5 rounded-full"
               />
             ) : (
-              <div className="w-5 h-5 rounded-full bg-gray-400 flex items-center justify-center">
+              <div className="w-4 h-4 sm:w-5 sm:h-5 rounded-full bg-gray-400 flex items-center justify-center">
                 <span className="text-xs text-white font-medium">
                   {uploaderName.charAt(0).toUpperCase()}
                 </span>

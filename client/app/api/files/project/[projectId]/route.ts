@@ -99,9 +99,7 @@ export async function GET(
       prisma.folder.findMany({
         where: {
           projectId,
-          ...(q.folderId
-            ? { parentFolderId: q.folderId }
-            : { parentFolderId: null }),
+          parentFolder: null
         },
         select: {
           id: true,

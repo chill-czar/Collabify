@@ -112,11 +112,11 @@ async function assertNoCircularParent(
       // circular reference found
       throw new Error("circularParentReference");
     }
-      const current: { parentFolderId: string | null } | null =
-        await prisma.folder.findUnique({
-          where: { id: currentId },
-          select: { parentFolderId: true },
-        });
+    const current: { parentFolderId: string | null } | null =
+      await prisma.folder.findUnique({
+        where: { id: currentId },
+        select: { parentFolderId: true },
+      });
 
     if (!current) return; // parent chain broken (parent not found) -> will be validated elsewhere
     currentId = current.parentFolderId ?? null;
@@ -177,7 +177,7 @@ export async function PATCH(
     // Assumption: you maintain a User model with a clerkId field
     const user = await prisma.user.findUnique({
       where: { clerkId },
-      select: { id: true},
+      select: { id: true },
     });
     if (!user) {
       return jsonError(
@@ -192,7 +192,7 @@ export async function PATCH(
       where: { id: folderId },
       include: {
         project: { select: { id: true } },
-        creator: { select: { id: true} },
+        creator: { select: { id: true } },
       },
     });
     if (!folder) {
