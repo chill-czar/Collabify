@@ -1,61 +1,75 @@
 "use client";
 
 import { useState } from "react";
-import { ChevronRight } from "lucide-react";
-import Toolbar from "./Toolbar";
-import Breadcrumbs from "./Breadcrumbs";
-import FiltersBar from "./FiltersBar";
-import FileGrid from "./FileGrid";
-import RightSidebar from "./RightSidebar";
-import { useParams } from "next/navigation";
+import { useParams, useRouter, useSearchParams } from "next/navigation";
+import { Search, Plus, Upload, Filter } from "lucide-react";
+import { FileManagerDemo } from "@/components/editor/files/FileManagerDemo";
+import Toolbar from './Toolbar';
 
-const FilesTab = () => {
-  const [sidebarOpen, setSidebarOpen] = useState(true);
-  const { projectId: rawProjectId } = useParams();
-  const projectId = Array.isArray(rawProjectId)
-    ? rawProjectId[0]
-    : rawProjectId;
+export default function ProjectFilesPage() {
+  const params = useParams();
+  const searchParams = useSearchParams();
 
-  // Track the current folder (root folder = null)
-  const [currentFolderId, setCurrentFolderId] = useState<string | null>(null);
+  const projectId = params?.projectId as string;
+  const folderId = searchParams.get("folderId") ?? null;
 
-  // Optional: handle folder navigation (update currentFolderId)
-  // const handleFolderClick = (folderId: string) => setCurrentFolderId(folderId);
-
-  if (!projectId) return <div>Error: projectId is required</div>;
+  const [searchQuery, setSearchQuery] = useState("");
+  const [showUploadModal, setShowUploadModal] = useState(false);
+  const [showCreateFolderModal, setShowCreateFolderModal] = useState(false);
 
   return (
-    <div className="flex flex-col h-screen bg-gray-50">
-      <Toolbar projectId={projectId} parentFolderId={currentFolderId} />
-      <Breadcrumbs
-      // currentFolderId={currentFolderId}
-      // setCurrentFolderId={setCurrentFolderId}
-      />
-      <FiltersBar />
+    <div className="h-screen flex flex-col bg-gray-50">
+      {/* Header */}
+     <Toolbar projectId={projectId} parentFolderId={folderId} />
 
-      <div className="flex flex-1 overflow-hidden">
-        <div className="flex-1 overflow-auto">
-          <FileGrid
-          // currentFolderId={currentFolderId}
-          />
-        </div>
-
-        <RightSidebar
-          isOpen={sidebarOpen}
-          onClose={() => setSidebarOpen(false)}
+      {/* File Manager */}
+      <div className="flex-1 overflow-hidden">
+        <FileManagerDemo
+          projectId={projectId}
+          folderId={folderId}
+          searchQuery={searchQuery}
         />
       </div>
 
-      {!sidebarOpen && (
-        <button
-          onClick={() => setSidebarOpen(true)}
-          className="fixed right-4 top-1/2 transform -translate-y-1/2 p-2 bg-white border border-gray-300 rounded-lg shadow-lg hover:bg-gray-50 transition-colors z-10"
-        >
-          <ChevronRight className="w-4 h-4" />
-        </button>
+      {/* Upload Modal */}
+      {showUploadModal && (
+        <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center">
+          <div className="bg-white rounded-lg p-6 max-w-md w-full mx-4">
+            <h2 className="text-lg font-semibold mb-4">Upload Files</h2>
+            <p className="text-gray-600 mb-4">
+              Upload modal implementation goes here
+            </p>
+            <div className="flex justify-end gap-2">
+              <button
+                onClick={() => setShowUploadModal(false)}
+                className="px-4 py-2 border rounded-lg hover:bg-gray-50"
+              >
+                Cancel
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Create Folder Modal */}
+      {showCreateFolderModal && (
+        <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center">
+          <div className="bg-white rounded-lg p-6 max-w-md w-full mx-4">
+            <h2 className="text-lg font-semibold mb-4">Create New Folder</h2>
+            <p className="text-gray-600 mb-4">
+              Create folder modal implementation goes here
+            </p>
+            <div className="flex justify-end gap-2">
+              <button
+                onClick={() => setShowCreateFolderModal(false)}
+                className="px-4 py-2 border rounded-lg hover:bg-gray-50"
+              >
+                Cancel
+              </button>
+            </div>
+          </div>
+        </div>
       )}
     </div>
   );
-};
-
-export default FilesTab;
+}

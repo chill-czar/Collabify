@@ -376,3 +376,83 @@ export interface DeleteFolderError {
 }
 
 export type DeleteFolderResponse = DeleteFolderSuccess | DeleteFolderError;
+
+
+// types/files.ts
+// Re-export and extend the API contracts for frontend use
+
+
+// Additional frontend-specific types
+export interface FileCardData {
+  id: string;
+  fileName: string;
+  fileType: string;
+  fileSize: number;
+  fileUrl: string;
+  category: string;
+  tags: string[];
+  description: string | null;
+  uploadedBy: string;
+  createdAt: string;
+  updatedAt: string;
+  isStarred?: boolean;
+  visibility: string;
+}
+
+export interface FolderTileData {
+  id: string;
+  name: string;
+  parentFolderId: string | null;
+  color: string | null;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface FileGridData {
+  files: FileCardData[];
+  folders: FolderTileData[];
+}
+
+export interface SelectionState {
+  selectedItem: any;
+  selectedType: 'file' | 'folder' | null;
+  sidebarOpen: boolean;
+}
+
+export interface FileManagerProps {
+  projectId: string;
+  folderId?: string | null;
+  searchQuery?: string;
+  onUpload?: () => void;
+  onCreateFolder?: () => void;
+  onItemSelect?: (item: any, type: 'file' | 'folder') => void;
+}
+
+// UI Component Props
+export interface BaseCardProps {
+  onSelect?: (item: any) => void;
+  isSelected?: boolean;
+}
+
+export interface BaseMenuProps {
+  isOpen: boolean;
+  onClose: () => void;
+  onRename: () => void;
+  onCopy: () => void;
+  onMove: () => void;
+  onShare: () => void;
+  onDelete: () => void;
+}
+
+export interface FileOperations extends BaseMenuProps {
+  onOpen?: () => void;
+  onDownload?: () => void;
+}
+
+// Error types
+export interface FileError {
+  type: 'upload' | 'delete' | 'rename' | 'move' | 'copy';
+  message: string;
+  itemId?: string;
+  itemName?: string;
+}
