@@ -16,6 +16,7 @@ import {
   CreateFolderErrorResponse,
   PatchFolderErrorResponse,
   DeleteFolderError,
+  UploadFileRequest,
 } from "@/app/types/files";
 import {
   useQuery,
@@ -23,6 +24,7 @@ import {
   useQueryClient,
   UseMutationOptions,
   UseQueryOptions,
+  UseMutationResult,
 } from "@tanstack/react-query";
 import { apiClient } from "../apiClient";
 
@@ -33,23 +35,30 @@ import { apiClient } from "../apiClient";
 /**
  * Upload a file to a project (optionally inside a folder)
  */
-export const uploadFile = async (args: {
-  projectId: string;
-  parentId?: string | null;
-  file: File;
-}): Promise<UploadFileResponse["data"]> => {
+export const uploadFile = async (
+  data: UploadFileRequest
+): Promise<UploadFileResponse> => {
   const formData = new FormData();
-  formData.append("file", args.file);
-  if (args.parentId) formData.append("folderId", args.parentId);
-  formData.append("projectId", args.projectId);
+  formData.append("file", data.file);
+  formData.append("fileName", data.fileName);
+  formData.append("projectId", data.projectId);
+  if (data.folderId) formData.append("folderId", data.folderId);
+  if (data.category) formData.append("category", data.category);
+  if (data.description) formData.append("description", data.description);
+  if (data.tags) formData.append("tags", JSON.stringify(data.tags));
 
   const res = await apiClient.post<UploadFileResponse>(
     "/files/upload",
-    formData
+    formData,
   );
-  if (!res.success) throw new Error("Upload failed");
-  return res.data;
+
+  // ✅ Ensure the return type matches UploadFileResponse
+  return {
+    success: res.success,
+    data: res.data,
+  };
 };
+
 
 /**
  * List files in a project (optionally filtered by folder)
@@ -196,14 +205,19 @@ export const deleteFolder = async (
 // REACT QUERY HOOKS
 // ==========================
 
-export const useUploadFile = (projectId: string, parentId?: string | null) => {
+export const useUploadFile = (
+  projectId: string,
+  parentId?: string | null
+): UseMutationResult<UploadFileResponse, Error, UploadFileRequest> => {
   const queryClient = useQueryClient();
-  return useMutation({
-    mutationFn: (file: File) => uploadFile({ projectId, parentId, file }),
-    onSuccess: () =>
+
+  return useMutation<UploadFileResponse, Error, UploadFileRequest>({
+    mutationFn: (payload: UploadFileRequest) => uploadFile(payload),
+    onSuccess: () => {
       queryClient.invalidateQueries({
-        queryKey: ["files", projectId, parentId],
-      }),
+        queryKey: ["files", projectId, parentId ?? null],
+      });
+    },
   });
 };
 

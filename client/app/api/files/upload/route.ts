@@ -58,7 +58,7 @@ export async function POST(req: Request) {
 
     // Lookup user
     const user = await prisma.user.findUnique({
-      where: { clerkId: "user_31TGF6kLrmgc5ZuCxiAp8ywbUbU" },
+      where: { clerkId: clerkUser.id },
     });
 
     if (!user) {

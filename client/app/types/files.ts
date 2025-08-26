@@ -251,6 +251,7 @@ export interface FileResponse {
   presignedUrl?: string;
 }
 
+
 export interface SubfolderResponse {
   id: string;
   name: string;
