@@ -135,7 +135,10 @@ export async function PATCH(
 ) {
   try {
     // 1) Validate path param
-    const parseParams = ParamsSchema.safeParse({ folderId: params?.folderId });
+    // const parseParams = ParamsSchema.safeParse({ folderId: params?.folderId });
+    const parseParams = ParamsSchema.safeParse({
+      folderId: (await params)?.folderId,
+    });
     if (!parseParams.success) {
       return jsonError(
         "invalid_path_params",
@@ -195,6 +198,7 @@ export async function PATCH(
         creator: { select: { id: true } },
       },
     });
+    // console.log(isCreator);
     if (!folder) {
       return jsonError("folder_not_found", "Folder not found", 404);
     }
@@ -209,7 +213,12 @@ export async function PATCH(
       select: { role: true },
     });
 
-    if (!membership || !ALLOWED_MEMBER_ROLES.includes(membership.role)) {
+    const isCreator = folder?.createdBy == user.id;
+
+    if (
+      !membership ||
+      (!ALLOWED_MEMBER_ROLES.includes(membership.role) && !isCreator)
+    ) {
       return jsonError(
         "forbidden",
         "User does not have permission to update folder",

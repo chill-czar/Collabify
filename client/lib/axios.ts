@@ -1,39 +1,38 @@
 import axios from "axios";
+import { useAuth } from "@clerk/nextjs";
 
 const api = axios.create({
-  baseURL: process.env.NEXT_PUBLIC_API_URL || "/api", // Fallback to Next.js API routes
-  withCredentials: true, // Send cookies for auth
+  baseURL: process.env.NEXT_PUBLIC_API_URL || "/api",
+  withCredentials: true,
   headers: {
     "Content-Type": "application/json",
   },
 });
 
-// Request Interceptor (e.g., attach auth token)
-// api.interceptors.request.use(
-//   (config) => {
-//     const token =
-//       typeof window !== "undefined"
-//         ? localStorage.getItem("access_token")
-//         : null;
-
-//     if (token) {
-//       config.headers.Authorization = `Bearer ${token}`;
-//     }
-//     return config;
-//   },
-//   (error) => Promise.reject(error)
-// );
-
-// // Response Interceptor (e.g., refresh token or handle errors)
-// api.interceptors.response.use(
-//   (response) => response,
-//   (error) => {
-//     if (error.response?.status === 401) {
-//       console.warn("Unauthorized — redirecting to login...");
-//       // Optionally: trigger logout or refresh flow
-//     }
-//     return Promise.reject(error);
-//   }
-// );
+// Add auth interceptor
+api.interceptors.request.use(
+  async (config) => {
+    if (typeof window !== "undefined") {
+      try {
+        console.log("Clerk instance:", (window as any).__clerk);
+        const clerk = (window as any).__clerk;
+        if (clerk?.session) {
+          const token = await clerk.session.getToken();
+          console.log("Got token:", token ? "YES" : "NO");
+          if (token) {
+            config.headers.Authorization = `Bearer ${token}`;
+          }
+        } else {
+          console.log("No clerk session available");
+        }
+      } catch (error) {
+        console.warn("Failed to get auth token:", error);
+      }
+    }
+    console.log("Final request headers:", config.headers);
+    return config;
+  },
+  (error) => Promise.reject(error)
+);
 
 export default api;
