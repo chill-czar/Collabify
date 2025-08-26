@@ -15,14 +15,6 @@ export const Loading: React.FC<LoadingProps> = ({
   if (variant === "grid") {
     return (
       <div className="w-full">
-        {/* Loading message */}
-        <div className="flex items-center justify-center mb-6">
-          <div className="flex items-center space-x-3">
-            <div className="w-5 h-5 border-2 border-gray-300 border-t-gray-900 rounded-full animate-spin"></div>
-            <span className="text-sm font-medium text-gray-600">{message}</span>
-          </div>
-        </div>
-
         {/* Grid skeleton - matches exact FileCard/FolderTile dimensions */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 gap-4 p-1">
           {Array.from({ length: count }, (_, i) => (

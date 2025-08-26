@@ -195,7 +195,7 @@ export const deleteFolder = async (
 ): Promise<DeleteFolderSuccess["data"]> => {
   const query = force ? "?force=true" : "";
   const res = await apiClient.delete<DeleteFolderSuccess | DeleteFolderError>(
-    `/folders/${folderId}${query}`
+    `/folders/${folderId}/delete`
   );
   if (!res.success) throw new Error(res.error || "Failed to delete folder");
   return res.data;

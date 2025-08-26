@@ -1,10 +1,12 @@
 // app/api/folders/[folderId]/route.ts
 import { NextResponse } from "next/server";
 import { currentUser } from "@clerk/nextjs/server";
-import  prisma  from "@/lib/prisma";
+import prisma from "@/lib/prisma";
 import z from "zod";
 import { deleteS3KeysRecursive } from "@/lib/s3";
 import { JsonValue } from "@prisma/client/runtime/library";
+import { logger } from "@/lib/logger";
+
 /**
  * Types / validation
  */
@@ -52,6 +54,7 @@ function extractS3KeyFromUrl(url: string): string | null {
     // If using CloudFront/custom domain, you may need to map differently.
     return u.pathname.replace(/^\/+/, ""); // remove leading slash
   } catch (err) {
+    logger.warn("Failed to extract S3 key from URL", { url, error: err });
     return null;
   }
 }
@@ -60,6 +63,8 @@ function extractS3KeyFromUrl(url: string): string | null {
  * Recursively collect folder IDs (BFS) for deletion.
  */
 async function collectFolderTreeIds(rootFolderId: string) {
+  logger.info("Starting folder tree collection", { rootFolderId });
+
   const all: string[] = [rootFolderId];
   const queue = [rootFolderId];
 
@@ -76,6 +81,11 @@ async function collectFolderTreeIds(rootFolderId: string) {
     }
   }
 
+  logger.info("Folder tree collection completed", {
+    rootFolderId,
+    totalFoldersFound: all.length,
+  });
+
   return all;
 }
 
@@ -86,6 +96,13 @@ export async function DELETE(
   req: Request,
   { params }: { params: { folderId: string } }
 ) {
+  const startTime = Date.now();
+  logger.info("DELETE folder request started", {
+    folderId: params?.folderId,
+    method: req.method,
+    url: req.url,
+  });
+
   try {
     // --- validate inputs
     const validatedParams = ParamsSchema.parse(params);
@@ -97,13 +114,18 @@ export async function DELETE(
     const folderId = validatedParams.folderId;
     const force = parsedQuery.force as boolean;
 
+    logger.info("Request validation successful", { folderId, force });
+
     // --- authenticate
     const clerkUser = await currentUser();
     if (!clerkUser) {
+      logger.warn("Authentication failed - no user found", { folderId });
       throw new ApiError("Not authenticated", 401);
     }
     const clerkUserId = clerkUser.id;
     // const clerkUserId = "user_31TGF6kLrmgc5ZuCxiAp8ywbUbU";
+
+    logger.info("User authenticated", { clerkUserId, folderId });
 
     // --- map Clerk user to DB user
     const requestingUser = await prisma.user.findUnique({
@@ -111,7 +133,16 @@ export async function DELETE(
       select: { id: true }, // include role/permissions if you keep them
     });
 
-    if (!requestingUser) throw new ApiError("User not found in DB", 401);
+    if (!requestingUser) {
+      logger.error("User not found in database", { clerkUserId, folderId });
+      throw new ApiError("User not found in DB", 401);
+    }
+
+    logger.info("Database user found", {
+      userId: requestingUser.id,
+      clerkUserId,
+      folderId,
+    });
 
     // --- fetch folder
     const folder = await prisma.folder.findUnique({
@@ -125,7 +156,18 @@ export async function DELETE(
       },
     });
 
-    if (!folder) throw new ApiError("Folder not found", 404);
+    if (!folder) {
+      logger.warn("Folder not found", { folderId, userId: requestingUser.id });
+      throw new ApiError("Folder not found", 404);
+    }
+
+    logger.info("Folder found", {
+      folderId,
+      folderName: folder.name,
+      projectId: folder.projectId,
+      createdBy: folder.createdBy,
+      userId: requestingUser.id,
+    });
 
     // --- authorization: must be project creator OR folder.creator OR have project delete permission
     // We'll check project and possible membership role.
@@ -133,10 +175,25 @@ export async function DELETE(
       where: { id: folder.projectId },
       select: { id: true, createdBy: true },
     });
-    if (!project) throw new ApiError("Parent project not found", 404);
+    if (!project) {
+      logger.error("Parent project not found", {
+        projectId: folder.projectId,
+        folderId,
+        userId: requestingUser.id,
+      });
+      throw new ApiError("Parent project not found", 404);
+    }
 
     const isProjectOwner = project.createdBy === requestingUser.id;
     const isFolderCreator = folder.createdBy === requestingUser.id;
+
+    logger.info("Authorization check - ownership status", {
+      folderId,
+      userId: requestingUser.id,
+      isProjectOwner,
+      isFolderCreator,
+      projectId: project.id,
+    });
 
     // Try to resolve role/permissions via ProjectMember if you have it
     const membership = await prisma.projectMember
@@ -150,7 +207,7 @@ export async function DELETE(
         select: { role: true, permissions: true },
       })
       .catch(() => null);
-    
+
     function isStringArray(value: JsonValue): value is string[] {
       return Array.isArray(value) && value.every((v) => typeof v === "string");
     }
@@ -163,8 +220,24 @@ export async function DELETE(
           (isStringArray(membership.permissions) &&
             membership.permissions.includes("folders:delete"))));
 
-    if (!hasDeletePerm)
+    if (!hasDeletePerm) {
+      logger.warn("Authorization failed - insufficient permissions", {
+        folderId,
+        userId: requestingUser.id,
+        isProjectOwner,
+        isFolderCreator,
+        membershipRole: membership?.role,
+        membershipPermissions: membership?.permissions,
+      });
       throw new ApiError("Forbidden: insufficient permissions", 403);
+    }
+
+    logger.info("Authorization successful", {
+      folderId,
+      userId: requestingUser.id,
+      hasDeletePerm,
+      membershipRole: membership?.role,
+    });
 
     // --- collect folder tree
     const folderIds = await collectFolderTreeIds(folderId);
@@ -175,8 +248,21 @@ export async function DELETE(
       select: { id: true, fileUrl: true, fileName: true },
     });
 
+    logger.info("Files and folders analysis", {
+      folderId,
+      totalFoldersToDelete: folderIds.length,
+      totalFilesToDelete: files.length,
+      force,
+    });
+
     if (!force && (files.length > 0 || folderIds.length > 1)) {
       // If folder has children (folderIds length > 1) or files and force not set, block deletion.
+      logger.warn("Deletion blocked - folder not empty and force not set", {
+        folderId,
+        filesCount: files.length,
+        subfoldersCount: folderIds.length - 1,
+        force,
+      });
       throw new ApiError(
         "Folder is not empty. Use ?force=true to delete folder and all its contents.",
         400,
@@ -191,6 +277,17 @@ export async function DELETE(
       if (key) s3Keys.push(key);
     }
 
+    logger.info("S3 keys collected for deletion", {
+      folderId,
+      totalS3Keys: s3Keys.length,
+      s3Keys:
+        s3Keys.length <= 10
+          ? s3Keys
+          : `${s3Keys.slice(0, 10).join(", ")}... (+${
+              s3Keys.length - 10
+            } more)`,
+    });
+
     // Also optionally remove folder metadata files (like thumbnails) placed under folder path:
     // If your app stores thumbnails or folder-level objects, add them here using folder.projectId/folderId path pattern
     // Example of folder metadata key prefix:
@@ -200,17 +297,42 @@ export async function DELETE(
     // --- S3: delete objects first
     let totalDeletedFromS3 = 0;
     if (s3Keys.length) {
+      logger.info("Starting S3 deletion", {
+        folderId,
+        s3KeysCount: s3Keys.length,
+      });
+
       // attempt one try; you can wrap in an exponential retry outside or here.
       const { totalDeleted, errors } = await deleteS3KeysRecursive(s3Keys);
       totalDeletedFromS3 = totalDeleted;
+
+      logger.info("S3 deletion completed", {
+        folderId,
+        totalDeleted,
+        requestedCount: s3Keys.length,
+        hasErrors: !!(errors && errors.length),
+      });
+
       if (errors && errors.length) {
         // Rollback policy: do NOT delete DB if S3 errors occurred (per spec).
+        logger.error("S3 deletion failed - aborting DB deletion", {
+          folderId,
+          errors,
+          totalDeleted,
+          totalRequested: s3Keys.length,
+        });
         throw new ApiError("Failed to delete some S3 objects", 500, { errors });
       }
     }
 
     // --- DB deletion: delete files & folders in transaction
     // Prisma + Mongo: $transaction works for deleteMany; if it throws, fallback to sequential deletes.
+    logger.info("Starting database deletion", {
+      folderId,
+      folderIdsToDelete: folderIds.length,
+      filesToDelete: files.length,
+    });
+
     try {
       // Delete files metadata
       const deleteFiles = prisma.file.deleteMany({
@@ -223,15 +345,41 @@ export async function DELETE(
       });
 
       await prisma.$transaction([deleteFiles, deleteFolders]);
+
+      logger.info("Database deletion successful via transaction", {
+        folderId,
+        deletedFolders: folderIds.length,
+        deletedFiles: files.length,
+      });
     } catch (txErr) {
+      logger.warn("Transaction failed, attempting sequential deletion", {
+        folderId,
+        transactionError: txErr,
+      });
+
       // Attempt sequential fallback (best-effort) and then throw if failure
       try {
         await prisma.file.deleteMany({
           where: { folderId: { in: folderIds } },
         });
         await prisma.folder.deleteMany({ where: { id: { in: folderIds } } });
+
+        logger.info("Database deletion successful via sequential fallback", {
+          folderId,
+          deletedFolders: folderIds.length,
+          deletedFiles: files.length,
+        });
       } catch (fallbackErr) {
         // At this stage S3 already deleted. This is a serious state; log and alert.
+        logger.error(
+          "CRITICAL: Failed to delete DB records after S3 deletion - data inconsistency",
+          {
+            folderId,
+            s3DeletedCount: totalDeletedFromS3,
+            transactionError: txErr,
+            fallbackError: fallbackErr,
+          }
+        );
         throw new ApiError(
           "Failed to delete DB records after S3 deletion",
           500,
@@ -256,10 +404,29 @@ export async function DELETE(
       timestamp: new Date().toISOString(),
     };
 
+    const duration = Date.now() - startTime;
+    logger.info("DELETE folder request completed successfully", {
+      folderId,
+      duration,
+      deletedFilesCount: s3Keys.length,
+      deletedSubfoldersCount: folderIds.length - 1,
+      s3DeletedObjectsCount: totalDeletedFromS3,
+    });
+
     return NextResponse.json(responsePayload, { status: 200 });
   } catch (err) {
+    const duration = Date.now() - startTime;
+
     // centralized error formatting
     if (err instanceof ApiError) {
+      logger.error("API Error occurred", {
+        folderId: params?.folderId,
+        duration,
+        status: err.status,
+        message: err.message,
+        details: err.details,
+      });
+
       return NextResponse.json(
         {
           success: false,
@@ -273,15 +440,28 @@ export async function DELETE(
     // zod errors
     // @ts-ignore
     if (err?.issues) {
+      logger.error("Validation error", {
+        folderId: params?.folderId,
+        duration,
+        validationIssues: err,
+      });
+
       return NextResponse.json(
         {
           success: false,
           error: "Validation error",
-          details: err
+          details: err,
         },
         { status: 400 }
       );
     }
+
+    logger.error("Unhandled error in DELETE folder", {
+      folderId: params?.folderId,
+      duration,
+      error: err,
+      stack: err instanceof Error ? err.stack : undefined,
+    });
 
     console.error("Unhandled error in DELETE /api/folders/:folderId", err);
     return NextResponse.json(
