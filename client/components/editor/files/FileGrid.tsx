@@ -4,7 +4,7 @@ import { FileCard } from "./FileCard";
 import { FolderTile } from "./FolderTile";
 import { EmptyState } from "./EmptyState";
 import { useFiles } from "@/lib/files/api";
-import { Loading } from "@/components/editor/Loading";
+import { Loading } from "@/components/editor/files/Loading";
 
 interface FileGridProps {
   projectId: string;
@@ -38,15 +38,32 @@ export const FileGrid: React.FC<FileGridProps> = ({
   };
 
   if (isLoading) {
-    return <Loading variant="grid" count={8} />;
+    return (
+      <div className="w-full h-full min-h-[400px] bg-white">
+        <div className="p-4 sm:p-6 lg:p-8">
+          <Loading variant="grid" count={8} />
+        </div>
+      </div>
+    );
   }
 
   if (error) {
     return (
-      <div className="p-8 text-center">
-        <div className="text-red-600 mb-2">Error loading files</div>
-        <div className="text-sm text-gray-500">
-          {error instanceof Error ? error.message : "Something went wrong"}
+      <div className="w-full h-full min-h-[400px] bg-white">
+        <div className="flex items-center justify-center p-8 sm:p-12">
+          <div className="text-center max-w-md">
+            <div className="w-12 h-12 mx-auto mb-4 rounded-full bg-red-50 flex items-center justify-center">
+              <svg className="w-6 h-6 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16c-.77.833.192 2.5 1.732 2.5z" />
+              </svg>
+            </div>
+            <h3 className="text-lg font-semibold text-gray-900 mb-2">
+              Error loading files
+            </h3>
+            <p className="text-sm text-gray-600 leading-relaxed">
+              {error instanceof Error ? error.message : "Something went wrong loading your files. Please try again."}
+            </p>
+          </div>
         </div>
       </div>
     );
@@ -82,44 +99,63 @@ export const FileGrid: React.FC<FileGridProps> = ({
       ? "folder"
       : "files";
     return (
-      <EmptyState
-        type={emptyStateType}
-        onUploadClick={onUpload}
-        onCreateFolderClick={onCreateFolder}
-        showActions={!searchQuery}
-      />
+      <div className="w-full h-full min-h-[500px] bg-white">
+        <div className="flex items-center justify-center p-8 sm:p-12">
+          <EmptyState
+            type={emptyStateType}
+            onUploadClick={onUpload}
+            onCreateFolderClick={onCreateFolder}
+            showActions={!searchQuery}
+          />
+        </div>
+      </div>
     );
   }
 
-  return (
-    <div className="p-6">
-      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
-        {/* Render Folders First */}
-        {filteredFolders.map((folder) => (
-          <div key={`folder-${folder.id}`} className="group">
-            <FolderTile
-              folder={folder}
-              onSelect={handleFolderSelect}
-              isSelected={
-                selectedType === "folder" && selectedItem?.id === folder.id
-              }
-            />
-          </div>
-        ))}
+  const totalItems = filteredFiles.length + filteredFolders.length;
 
-        {/* Render Files */}
-        {filteredFiles.map((file) => (
-          <div key={`file-${file.id}`} className="group">
-            <FileCard
-              file={file}
-              onSelect={handleFileSelect}
-              isSelected={
-                selectedType === "file" && selectedItem?.id === file.id
-              }
-            />
-          </div>
-        ))}
+  return (
+    <div className="w-full h-full bg-white">
+
+      {/* Grid Container */}
+      <div className="p-4 sm:p-6 lg:p-8">
+        <div className="grid grid-cols-1 xs:grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-5 gap-3 sm:gap-4 lg:gap-6">
+          {/* Render Folders First */}
+          {filteredFolders.map((folder) => (
+            <div 
+              key={`folder-${folder.id}`} 
+              className="group relative transition-all duration-200 hover:scale-[1.02]"
+            >
+              <FolderTile
+                folder={folder}
+                onSelect={handleFolderSelect}
+                isSelected={
+                  selectedType === "folder" && selectedItem?.id === folder.id
+                }
+              />
+            </div>
+          ))}
+
+          {/* Render Files */}
+          {filteredFiles.map((file) => (
+            <div 
+              key={`file-${file.id}`} 
+              className="group relative transition-all duration-200 hover:scale-[1.02]"
+            >
+              <FileCard
+                file={file}
+                onSelect={handleFileSelect}
+                isSelected={
+                  selectedType === "file" && selectedItem?.id === file.id
+                }
+              />
+            </div>
+          ))}
+        </div>
       </div>
+
+      {/* Bottom spacing for better visual balance */}
+      <div className="h-6 sm:h-8" />
     </div>
   );
 };

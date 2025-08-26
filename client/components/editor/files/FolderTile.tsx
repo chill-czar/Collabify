@@ -2,7 +2,7 @@
 import React, { useState } from "react";
 import { Folder, MoreVertical } from "lucide-react";
 import { useDeleteFolder, useUpdateFolder } from "@/lib/files/api";
-import { Loading } from "@/components/editor/Loading";
+import { Loading } from "@/components/editor/files/Loading";
 import { ContextMenu } from "./ContextMenu";
 import { formatDate } from "@/utils/fileUtils";
 

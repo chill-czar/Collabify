@@ -23,21 +23,27 @@ export const EmptyState: React.FC<EmptyStateProps> = ({
     switch (type) {
       case "search":
         return {
-          icon: <FileText className="w-16 h-16 mx-auto mb-4 text-gray-300" />,
+          icon: (
+            <FileText className="w-12 h-12 sm:w-16 sm:h-16 text-gray-400/60" />
+          ),
           title: "No results found",
           message:
             "Try adjusting your search terms or filters to find what you're looking for.",
         };
       case "folder":
         return {
-          icon: <FolderPlus className="w-16 h-16 mx-auto mb-4 text-gray-300" />,
+          icon: (
+            <FolderPlus className="w-12 h-12 sm:w-16 sm:h-16 text-gray-400/60" />
+          ),
           title: "Empty folder",
           message:
             "This folder is empty. Upload files or create subfolders to get started.",
         };
       default:
         return {
-          icon: <FileText className="w-16 h-16 mx-auto mb-4 text-gray-300" />,
+          icon: (
+            <FileText className="w-12 h-12 sm:w-16 sm:h-16 text-gray-400/60" />
+          ),
           title: "No files yet",
           message:
             "Upload your first file or create a folder to get started organizing your content.",
@@ -48,30 +54,35 @@ export const EmptyState: React.FC<EmptyStateProps> = ({
   const defaultContent = getDefaultContent();
 
   return (
-    <div className="flex flex-col items-center justify-center py-16 px-4">
-      <div className="text-gray-400 mb-4">{defaultContent.icon}</div>
+    <div className="flex flex-col items-center justify-center min-h-[400px] px-4 py-12 sm:py-16">
+      {/* Icon Container */}
+      <div className="flex items-center justify-center w-20 h-20 sm:w-24 sm:h-24 rounded-full bg-gray-50 mb-6">
+        {defaultContent.icon}
+      </div>
 
-      <h3 className="text-xl font-medium text-gray-900 mb-2">
-        {title || defaultContent.title}
-      </h3>
+      {/* Content */}
+      <div className="text-center max-w-md space-y-3">
+        <h3 className="text-lg sm:text-xl font-semibold text-gray-900 tracking-tight">
+          {title || defaultContent.title}
+        </h3>
+        <p className="text-sm sm:text-base text-gray-500 leading-relaxed">
+          {message || defaultContent.message}
+        </p>
+      </div>
 
-      <p className="text-gray-500 text-center max-w-sm mb-6">
-        {message || defaultContent.message}
-      </p>
-
+      {/* Actions */}
       {showActions && type !== "search" && (
-        <div className="flex gap-3">
+        <div className="flex flex-col sm:flex-row gap-3 mt-8 w-full max-w-sm">
           <button
             onClick={onUploadClick}
-            className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors flex items-center gap-2"
+            className="flex-1 inline-flex items-center justify-center gap-2 px-4 py-2.5 bg-black text-white text-sm font-medium rounded-lg hover:bg-gray-800 active:bg-gray-900 transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-gray-900 focus:ring-offset-2"
           >
             <Upload className="w-4 h-4" />
             Upload Files
           </button>
-
           <button
             onClick={onCreateFolderClick}
-            className="px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors flex items-center gap-2"
+            className="flex-1 inline-flex items-center justify-center gap-2 px-4 py-2.5 bg-white text-gray-700 text-sm font-medium rounded-lg border border-gray-200 hover:bg-gray-50 active:bg-gray-100 transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-gray-900 focus:ring-offset-2"
           >
             <FolderPlus className="w-4 h-4" />
             New Folder
