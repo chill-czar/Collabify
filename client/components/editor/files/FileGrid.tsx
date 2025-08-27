@@ -6,6 +6,11 @@ import { EmptyState } from "./EmptyState";
 import { useFiles } from "@/lib/files/api";
 import { Loading } from "@/components/editor/files/Loading";
 import Breadcrumbs from "./Breadcrumbs";
+import { Home } from "lucide-react";
+import { useDispatch, useSelector } from "react-redux";
+import { RootState } from "@/lib/store";
+import { setCurrentFolderId } from "@/lib/slices/currentFolderIdSlice";
+import { enterFolder } from "@/lib/slices/breadcrumbSlice";
 
 interface FileGridProps {
   projectId: string;
@@ -28,8 +33,21 @@ export const FileGrid: React.FC<FileGridProps> = ({
   onCreateFolder,
   searchQuery,
 }) => {
-const [currentFolderId, setCurrentFolderId] = useState<string | null>(null);
-  // const { data, isLoading, error } = useFiles(projectId, currentFolderId);
+  
+   const dispatch = useDispatch();
+   const currentFolderId = useSelector(
+     (state: RootState) => state.currentFolder.currentFolderId
+   );
+
+   const handelDoubelFoldereClick = (
+     folderId: string | null,
+     foldername: string
+   ) => {
+     dispatch(setCurrentFolderId(folderId));
+     dispatch(enterFolder({ id: folderId, name: foldername }));
+   };
+
+  
   const {
     data,
     isLoading,
@@ -136,7 +154,7 @@ const [currentFolderId, setCurrentFolderId] = useState<string | null>(null);
 
   return (
     <div className="w-full h-full bg-white">
-      <Breadcrumbs />
+      {/* <Breadcrumbs/> */}
       {/* Grid Container */}
       <div className="p-4 sm:p-6 lg:p-8">
         <div className="grid grid-cols-1 xs:grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-5 gap-3 sm:gap-4 lg:gap-6">
@@ -144,13 +162,14 @@ const [currentFolderId, setCurrentFolderId] = useState<string | null>(null);
           {filteredFolders.map((folder) => (
             <div
               key={`folder-${folder.id}`}
-              onDoubleClick={()=>setCurrentFolderId(folder.id)}
+              onDoubleClick={() =>
+                handelDoubelFoldereClick(folder.id, folder.name)
+              }
               className="group relative transition-all duration-200 hover:scale-[1.02]"
             >
               <FolderTile
                 folder={folder}
                 onSelect={handleFolderSelect}
-                
                 isSelected={
                   selectedType === "folder" && selectedItem?.id === folder.id
                 }

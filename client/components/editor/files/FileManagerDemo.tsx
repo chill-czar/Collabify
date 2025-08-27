@@ -2,6 +2,7 @@
 import React, { useState } from "react";
 import { FileGrid } from "./FileGrid";
 import { RightSidebar } from "./RightSidebar";
+import Breadcrumbs from './Breadcrumbs';
 
 interface FileManagerDemoProps {
   projectId: string;
@@ -46,6 +47,7 @@ export const FileManagerDemo: React.FC<FileManagerDemoProps> = ({
     <div className="flex h-screen bg-gray-50">
       {/* Main Content */}
       <div className="flex-1 overflow-hidden">
+        <Breadcrumbs />
         <FileGrid
           projectId={projectId}
           folderId={folderId}

@@ -12,13 +12,18 @@ import {
 import { motion } from "framer-motion";
 import type { CreateFolderRequest, UploadFileRequest } from "@/app/types/files";
 import { useUploadFile, useCreateFolder } from "@/lib/files/api";
+import { useSelector } from "react-redux";
+import { RootState } from "@/lib/store";
 
 export type ToolbarProps = {
   projectId: string;
   parentFolderId: string | null;
 };
 
-const Toolbar: React.FC<ToolbarProps> = ({ projectId, parentFolderId }) => {
+const Toolbar: React.FC<ToolbarProps> = ({ projectId }) => {
+  const parentFolderId = useSelector(
+    (state: RootState) => state.breadCrumb.currentFolderId
+  );
   // Folder creation state
   const [showCreateFolderModal, setShowCreateFolderModal] = useState(false);
   const [folderName, setFolderName] = useState("");

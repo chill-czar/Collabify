@@ -1,12 +1,13 @@
 import { configureStore } from "@reduxjs/toolkit";
-import  userReducer  from '@/lib/slices/userSlice';
-// Import your reducers here
-
+import userReducer from "@/lib/slices/userSlice";
+import currentFolderIdReducer from "@/lib/slices/currentFolderIdSlice";
+import breadCrumbReducer from '@/lib/slices/breadcrumbSlice'
 export const store = configureStore({
   reducer: {
-    user: userReducer
-    },
-//   devTools: process.env.NODE_ENV !== "production",
+    user: userReducer,
+    currentFolder: currentFolderIdReducer,
+    breadCrumb: breadCrumbReducer
+  },
 });
 
 // Types for better TS support
