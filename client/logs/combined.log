@@ -12,3 +12,68 @@
 [2025-08-27 01:58:50] [32minfo[39m: Starting database deletion
 [2025-08-27 01:58:51] [32minfo[39m: Database deletion successful via transaction
 [2025-08-27 01:58:51] [32minfo[39m: DELETE folder request completed successfully
+[2025-08-27 18:23:19] [32minfo[39m: DELETE folder request started
+[2025-08-27 18:23:19] [32minfo[39m: Request validation successful
+[2025-08-27 18:23:20] [32minfo[39m: User authenticated
+[2025-08-27 18:23:20] [32minfo[39m: Database user found
+[2025-08-27 18:23:20] [32minfo[39m: Folder found
+[2025-08-27 18:23:20] [32minfo[39m: Authorization check - ownership status
+[2025-08-27 18:23:20] [32minfo[39m: Authorization successful
+[2025-08-27 18:23:20] [32minfo[39m: Starting folder tree collection
+[2025-08-27 18:23:20] [32minfo[39m: Folder tree collection completed
+[2025-08-27 18:23:20] [32minfo[39m: Files and folders analysis
+[2025-08-27 18:23:20] [32minfo[39m: S3 keys collected for deletion
+[2025-08-27 18:23:20] [32minfo[39m: Starting database deletion
+[2025-08-27 18:23:21] [32minfo[39m: Database deletion successful via transaction
+[2025-08-27 18:23:21] [32minfo[39m: DELETE folder request completed successfully
+[2025-08-27 18:23:26] [32minfo[39m: DELETE folder request started
+[2025-08-27 18:23:26] [32minfo[39m: Request validation successful
+[2025-08-27 18:23:27] [32minfo[39m: User authenticated
+[2025-08-27 18:23:27] [32minfo[39m: Database user found
+[2025-08-27 18:23:27] [32minfo[39m: Folder found
+[2025-08-27 18:23:27] [32minfo[39m: Authorization check - ownership status
+[2025-08-27 18:23:27] [32minfo[39m: Authorization successful
+[2025-08-27 18:23:27] [32minfo[39m: Starting folder tree collection
+[2025-08-27 18:23:27] [32minfo[39m: Folder tree collection completed
+[2025-08-27 18:23:27] [32minfo[39m: Files and folders analysis
+[2025-08-27 18:23:27] [33mwarn[39m: Deletion blocked - folder not empty and force not set
+[2025-08-27 18:23:27] [31merror[39m: API Error occurred Folder is not empty. Use ?force=true to delete folder and all its contents.
+[2025-08-27 18:24:12] [32minfo[39m: DELETE folder request started
+[2025-08-27 18:24:12] [32minfo[39m: Request validation successful
+[2025-08-27 18:24:13] [32minfo[39m: User authenticated
+[2025-08-27 18:24:13] [32minfo[39m: Database user found
+[2025-08-27 18:24:13] [32minfo[39m: Folder found
+[2025-08-27 18:24:13] [32minfo[39m: Authorization check - ownership status
+[2025-08-27 18:24:13] [32minfo[39m: Authorization successful
+[2025-08-27 18:24:13] [32minfo[39m: Starting folder tree collection
+[2025-08-27 18:24:13] [32minfo[39m: Folder tree collection completed
+[2025-08-27 18:24:13] [32minfo[39m: Files and folders analysis
+[2025-08-27 18:24:13] [33mwarn[39m: Deletion blocked - folder not empty and force not set
+[2025-08-27 18:24:14] [31merror[39m: API Error occurred Folder is not empty. Use ?force=true to delete folder and all its contents.
+[2025-08-27 18:30:17] [32minfo[39m: DELETE folder request started
+[2025-08-27 18:30:17] [32minfo[39m: Request validation successful
+[2025-08-27 18:30:18] [32minfo[39m: User authenticated
+[2025-08-27 18:30:19] [32minfo[39m: Database user found
+[2025-08-27 18:30:19] [32minfo[39m: Folder found
+[2025-08-27 18:30:20] [32minfo[39m: Authorization check - ownership status
+[2025-08-27 18:30:20] [32minfo[39m: Authorization successful
+[2025-08-27 18:30:20] [32minfo[39m: Starting folder tree collection
+[2025-08-27 18:30:20] [32minfo[39m: Folder tree collection completed
+[2025-08-27 18:30:20] [32minfo[39m: Files and folders analysis
+[2025-08-27 18:30:20] [33mwarn[39m: Deletion blocked - folder not empty and force not set
+[2025-08-27 18:30:20] [31merror[39m: API Error occurred Folder is not empty. Use ?force=true to delete folder and all its contents.
+[2025-08-27 18:34:18] [32minfo[39m: DELETE folder request started
+[2025-08-27 18:34:18] [32minfo[39m: Request validation successful
+[2025-08-27 18:34:19] [32minfo[39m: User authenticated
+[2025-08-27 18:34:20] [32minfo[39m: Database user found
+[2025-08-27 18:34:20] [32minfo[39m: Folder found
+[2025-08-27 18:34:20] [32minfo[39m: Authorization check - ownership status
+[2025-08-27 18:34:20] [32minfo[39m: Authorization successful
+[2025-08-27 18:34:20] [32minfo[39m: Starting folder tree collection
+[2025-08-27 18:34:20] [32minfo[39m: Folder tree collection completed
+[2025-08-27 18:34:20] [32minfo[39m: Files and folders analysis
+[2025-08-27 18:34:20] [33mwarn[39m: Failed to extract S3 key from URL
+[2025-08-27 18:34:20] [32minfo[39m: S3 keys collected for deletion
+[2025-08-27 18:34:20] [32minfo[39m: Starting database deletion
+[2025-08-27 18:34:20] [32minfo[39m: Database deletion successful via transaction
+[2025-08-27 18:34:20] [32minfo[39m: DELETE folder request completed successfully

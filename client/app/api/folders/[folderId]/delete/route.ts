@@ -18,18 +18,6 @@ const ParamsSchema = z.object({
     .regex(/^[a-fA-F0-9]{24}$/, "folderId must be a valid ObjectId"),
 });
 
-const QuerySchema = z.object({
-  force: z
-    .string()
-    .optional()
-    .transform((val) => {
-      if (val === undefined) return false;
-      return val === "true" || val === "1" || val === "yes";
-    })
-    .or(z.boolean().optional())
-    .default(false),
-});
-
 /**
  * ApiError for centralized error handling
  */
@@ -106,13 +94,9 @@ export async function DELETE(
   try {
     // --- validate inputs
     const validatedParams = ParamsSchema.parse(params);
-    const url = new URL(req.url);
-    const parsedQuery = QuerySchema.parse({
-      force: url.searchParams.get("force") ?? undefined,
-    });
 
     const folderId = validatedParams.folderId;
-    const force = parsedQuery.force as boolean;
+    const force = true;
 
     logger.info("Request validation successful", { folderId, force });
 
@@ -420,7 +404,7 @@ export async function DELETE(
     // centralized error formatting
     if (err instanceof ApiError) {
       logger.error("API Error occurred", {
-        folderId: params?.folderId,
+        folderId: await params?.folderId,
         duration,
         status: err.status,
         message: err.message,
