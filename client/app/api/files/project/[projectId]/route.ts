@@ -26,7 +26,7 @@ type ParsedQuery = z.infer<typeof querySchema>;
 // -----------------------------
 export async function GET(
   req: NextRequest,
-  { params }: { params: { projectId: string } }
+  { params }: { params: { projectId: string , folderId: string } }
 ) {
   try {
     const clerkUser = await currentUser();
@@ -42,6 +42,9 @@ export async function GET(
     }
 
     const projectId = params.projectId;
+    // const { searchParams } = new URL(req.url);
+    // const folderId = searchParams.get("folderId");
+    // console.log("folderId: ",folderId)
     if (!isObjectId(projectId)) {
       return NextResponse.json(
         { success: false, error: "Invalid projectId" },
@@ -63,7 +66,8 @@ export async function GET(
       );
     }
     const q = parsed.data;
-
+    console.log("folderId",q.folderId)
+console.log(q.folderId || null )
     // Fetch files + folders in this folder
     const [files, folders] = await Promise.all([
       prisma.file.findMany({
@@ -99,7 +103,7 @@ export async function GET(
       prisma.folder.findMany({
         where: {
           projectId,
-          parentFolder: null
+          parentFolderId: q.folderId || null,
         },
         select: {
           id: true,

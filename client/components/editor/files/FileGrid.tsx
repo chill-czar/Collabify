@@ -1,5 +1,5 @@
 // components/files/FileGrid.tsx
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { FileCard } from "./FileCard";
 import { FolderTile } from "./FolderTile";
 import { EmptyState } from "./EmptyState";
@@ -28,8 +28,15 @@ export const FileGrid: React.FC<FileGridProps> = ({
   onCreateFolder,
   searchQuery,
 }) => {
-  const { data, isLoading, error } = useFiles(projectId, folderId);
+const [currentFolderId, setCurrentFolderId] = useState<string | null>(null);
+  // const { data, isLoading, error } = useFiles(projectId, currentFolderId);
+  const {
+    data,
+    isLoading,
+    error,
+  } = useFiles(projectId, currentFolderId);
 
+  
   const handleFileSelect = (file: any) => {
     onItemSelect?.(file, "file");
   };
@@ -137,11 +144,13 @@ export const FileGrid: React.FC<FileGridProps> = ({
           {filteredFolders.map((folder) => (
             <div
               key={`folder-${folder.id}`}
+              onDoubleClick={()=>setCurrentFolderId(folder.id)}
               className="group relative transition-all duration-200 hover:scale-[1.02]"
             >
               <FolderTile
                 folder={folder}
                 onSelect={handleFolderSelect}
+                
                 isSelected={
                   selectedType === "folder" && selectedItem?.id === folder.id
                 }

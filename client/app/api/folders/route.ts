@@ -159,7 +159,7 @@ export async function POST(req: NextRequest) {
     }
 
     // Validate parent folder
-    let resolvedParentFolderId: string | undefined = undefined;
+    let resolvedParentFolderId: string | null = null;
     if (parentFolderId) {
       const parentFolder = await prisma.folder.findUnique({
         where: { id: parentFolderId },
@@ -208,10 +208,10 @@ export async function POST(req: NextRequest) {
      data: {
        // id: folderId, // remove this
        name: cleanName,
-       description: description ?? undefined,
+       description: description ?? null,
        projectId,
        createdBy: userId,
-       parentFolderId: resolvedParentFolderId ?? undefined,
+       parentFolderId: resolvedParentFolderId ?? null,
        createdAt: now,
        updatedAt: now,
      },
