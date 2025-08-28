@@ -1,83 +1,73 @@
 "use client";
-import React, { useEffect, useState } from "react";
-import { FileText, PenTool, Video, Users, Share2 } from "lucide-react";
+
+import React, { useEffect } from "react";
+import { FileText, PenTool, Video } from "lucide-react";
+import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import Notes from "@/components/editor/Notes";
 import WhiteBoard from "@/components/editor/WhiteBoard";
 import VideoCall from "@/components/editor/VideoCall";
 import Files from "@/components/editor/files/Files";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { hideHeader } from "@/lib/slices/headerSlice";
 import { closeSidebar } from "@/lib/slices/sidebarSlice";
-
+import { RootState } from "@/lib/slices/tabSlice";
+import { setActiveTab } from "@/lib/slices/tabSlice";
 
 const FileManagerTabs = () => {
-  const [activeTab, setActiveTab] = useState<string>("Files");
-    const dispatch = useDispatch();
+  const dispatch = useDispatch();
+  const activeTab = useSelector((state: RootState) => state.tabs.activeTab);
 
-    useEffect(() => {
-      dispatch(hideHeader());
-      dispatch(closeSidebar());
-    }, []);
-  
+  // Hide header & sidebar when inside editor
+  useEffect(() => {
+    dispatch(hideHeader());
+    dispatch(closeSidebar());
+  }, [dispatch]);
+
   const tabs = [
-    { name: "Files", icon: FileText },
-    { name: "Notes", icon: PenTool },
-    { name: "Whiteboard", icon: PenTool },
-    { name: "Video Call", icon: Video },
+    { name: "Files", icon: FileText, content: <Files /> },
+    { name: "Notes", icon: PenTool, content: <Notes /> },
+    { name: "Whiteboard", icon: PenTool, content: <WhiteBoard /> },
+    { name: "Video Call", icon: Video, content: <VideoCall /> },
   ];
 
-
   return (
-    <div className="w-full mx-auto bg-white min-h-screen">
-      {/* Header */}
-      {/* <div className="flex items-center justify-between p-6 border-b border-gray-200">
-        <h1 className="text-xl font-semibold text-gray-900">
-          Website Redesign Project
-        </h1>
-        <div className="flex items-center gap-4">
-          <div className="flex items-center gap-2 text-sm text-gray-600">
-            <Users className="w-4 h-4" />
-            <span>4 members</span>
-          </div>
-          <button className="flex items-center gap-2 text-sm text-gray-600 hover:text-gray-900">
-            <Share2 className="w-4 h-4" />
-            <span>Share</span>
-          </button>
+    <div className="w-full flex flex-col bg-white">
+      <Tabs
+        value={activeTab}
+        onValueChange={(val) => dispatch(setActiveTab(val))}
+        className="flex flex-col flex-1"
+      >
+        {/* Sticky Tab List */}
+        <TabsList className="flex gap-5 border-b border-gray-200 bg-gray-50 sticky top-0 z-10">
+          {tabs.map((tab) => {
+            const Icon = tab.icon;
+            return (
+              <TabsTrigger
+                key={tab.name}
+                value={tab.name}
+                className="flex items-center gap-2 px-4 py-2 text-sm font-medium 
+                  data-[state=active]:bg-black data-[state=active]:text-white 
+                  data-[state=active]:border-black border-b-2 border-transparent 
+                  transition-colors"
+              >
+                <Icon className="w-4 h-4" />
+                {tab.name}
+              </TabsTrigger>
+            );
+          })}
+        </TabsList>
+
+        {/* Scrollable Tab Contents */}
+        <div className="flex-1 overflow-y-auto">
+          {tabs.map((tab) => (
+            <TabsContent key={tab.name} value={tab.name} className="min-h-full">
+              {tab.content}
+            </TabsContent>
+          ))}
         </div>
-      </div> */}
-
-      {/* Tabs */}
-      <div className="flex border-b border-gray-200">
-        {tabs.map((tab) => {
-          const Icon = tab.icon;
-          return (
-            <button
-              key={tab.name}
-              onClick={() => setActiveTab(tab.name)}
-              className={`flex items-center gap-2 px-4 py-3 text-sm font-medium border-b-2 transition-colors ${
-                activeTab === tab.name
-                  ? "border-black text-white bg-black"
-                  : "border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300"
-              }`}
-            >
-              <Icon className="w-4 h-4" />
-              {tab.name}
-            </button>
-          );
-        })}
-      </div>
-
-      {/* Content */}
-      <div className="p-6">
-        {activeTab === "Files" && <Files />}
-        {activeTab === "Notes" && <Notes />}
-        {activeTab === "Whiteboard" && <WhiteBoard />}
-        {activeTab === "Video Call" && <VideoCall />}
-      </div>
+      </Tabs>
     </div>
   );
 };
 
 export default FileManagerTabs;
-
-

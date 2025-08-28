@@ -11,6 +11,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "@/lib/store";
 import { setCurrentFolderId } from "@/lib/slices/currentFolderIdSlice";
 import { enterFolder } from "@/lib/slices/breadcrumbSlice";
+import { LoaderOne } from "../../ui/loader";
 
 interface FileGridProps {
   projectId: string;
@@ -33,28 +34,21 @@ export const FileGrid: React.FC<FileGridProps> = ({
   onCreateFolder,
   searchQuery,
 }) => {
-  
-   const dispatch = useDispatch();
-   const currentFolderId = useSelector(
-     (state: RootState) => state.currentFolder.currentFolderId
-   );
+  const dispatch = useDispatch();
+  const currentFolderId = useSelector(
+    (state: RootState) => state.currentFolder.currentFolderId
+  );
 
-   const handelDoubelFoldereClick = (
-     folderId: string | null,
-     foldername: string
-   ) => {
-     dispatch(setCurrentFolderId(folderId));
-     dispatch(enterFolder({ id: folderId, name: foldername }));
-   };
+  const handelDoubelFoldereClick = (
+    folderId: string | null,
+    foldername: string
+  ) => {
+    dispatch(setCurrentFolderId(folderId));
+    dispatch(enterFolder({ id: folderId, name: foldername }));
+  };
 
-  
-  const {
-    data,
-    isLoading,
-    error,
-  } = useFiles(projectId, currentFolderId);
+  const { data, isLoading, error } = useFiles(projectId, currentFolderId);
 
-  
   const handleFileSelect = (file: any) => {
     onItemSelect?.(file, "file");
   };
@@ -65,10 +59,8 @@ export const FileGrid: React.FC<FileGridProps> = ({
 
   if (isLoading) {
     return (
-      <div className="w-full h-full min-h-[400px] bg-white">
-        <div className="p-4 sm:p-6 lg:p-8">
-          <Loading variant="grid" count={8} />
-        </div>
+      <div className="w-full h-full flex items-cener justify-center bg-white">
+        <LoaderOne />
       </div>
     );
   }
@@ -150,13 +142,10 @@ export const FileGrid: React.FC<FileGridProps> = ({
     );
   }
 
-  const totalItems = filteredFiles.length + filteredFolders.length;
-
   return (
     <div className="w-full h-full bg-white">
-      {/* <Breadcrumbs/> */}
       {/* Grid Container */}
-      <div className="p-4 sm:p-6 lg:p-8">
+      <div className="sm:p-6 lg:p-8">
         <div className="grid grid-cols-1 xs:grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-5 gap-3 sm:gap-4 lg:gap-6">
           {/* Render Folders First */}
           {filteredFolders.map((folder) => (
@@ -194,9 +183,6 @@ export const FileGrid: React.FC<FileGridProps> = ({
           ))}
         </div>
       </div>
-
-      {/* Bottom spacing for better visual balance */}
-      <div className="h-6 sm:h-8" />
     </div>
   );
 };
