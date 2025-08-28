@@ -1,3 +1,13 @@
 [2025-08-27 18:23:27] [31merror[39m: API Error occurred Folder is not empty. Use ?force=true to delete folder and all its contents.
 [2025-08-27 18:24:14] [31merror[39m: API Error occurred Folder is not empty. Use ?force=true to delete folder and all its contents.
 [2025-08-27 18:30:20] [31merror[39m: API Error occurred Folder is not empty. Use ?force=true to delete folder and all its contents.
+[2025-08-28 13:24:43] [31merror[39m: CRITICAL: Failed to delete DB records after S3 deletion - data inconsistency
+[2025-08-28 13:24:43] [31merror[39m: API Error occurred Failed to delete DB records after S3 deletion
+[2025-08-28 13:26:38] [31merror[39m: CRITICAL: Failed to delete DB records after S3 deletion - data inconsistency
+[2025-08-28 13:26:39] [31merror[39m: API Error occurred Failed to delete DB records after S3 deletion
+[2025-08-28 13:30:48] [31merror[39m: CRITICAL: Failed to delete DB records after S3 deletion - data inconsistency
+[2025-08-28 13:30:49] [31merror[39m: API Error occurred Failed to delete DB records after S3 deletion
+[2025-08-28 13:31:26] [31merror[39m: CRITICAL: Failed to delete DB records after S3 deletion - data inconsistency
+[2025-08-28 13:31:26] [31merror[39m: API Error occurred Failed to delete DB records after S3 deletion
+[2025-08-28 13:32:58] [31merror[39m: CRITICAL: Failed to delete DB records after S3 deletion - data inconsistency
+[2025-08-28 13:32:59] [31merror[39m: API Error occurred Failed to delete DB records after S3 deletion

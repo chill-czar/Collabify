@@ -77,3 +77,149 @@
 [2025-08-27 18:34:20] [32minfo[39m: Starting database deletion
 [2025-08-27 18:34:20] [32minfo[39m: Database deletion successful via transaction
 [2025-08-27 18:34:20] [32minfo[39m: DELETE folder request completed successfully
+[2025-08-28 12:47:55] [32minfo[39m: DELETE folder request started
+[2025-08-28 12:47:55] [32minfo[39m: Request validation successful
+[2025-08-28 12:47:56] [32minfo[39m: User authenticated
+[2025-08-28 12:47:56] [32minfo[39m: Database user found
+[2025-08-28 12:47:56] [32minfo[39m: Folder found
+[2025-08-28 12:47:56] [32minfo[39m: Authorization check - ownership status
+[2025-08-28 12:47:56] [32minfo[39m: Authorization successful
+[2025-08-28 12:47:56] [32minfo[39m: Starting folder tree collection
+[2025-08-28 12:47:56] [32minfo[39m: Folder tree collection completed
+[2025-08-28 12:47:56] [32minfo[39m: Files and folders analysis
+[2025-08-28 12:47:56] [32minfo[39m: S3 keys collected for deletion
+[2025-08-28 12:47:56] [32minfo[39m: Starting database deletion
+[2025-08-28 12:47:57] [32minfo[39m: Database deletion successful via transaction
+[2025-08-28 12:47:57] [32minfo[39m: DELETE folder request completed successfully
+[2025-08-28 13:24:41] [32minfo[39m: DELETE folder request started
+[2025-08-28 13:24:41] [32minfo[39m: Request validation successful
+[2025-08-28 13:24:42] [32minfo[39m: User authenticated
+[2025-08-28 13:24:42] [32minfo[39m: Database user found
+[2025-08-28 13:24:42] [32minfo[39m: Folder found
+[2025-08-28 13:24:42] [32minfo[39m: Authorization check - ownership status
+[2025-08-28 13:24:42] [32minfo[39m: Authorization successful
+[2025-08-28 13:24:42] [32minfo[39m: Starting folder tree collection
+[2025-08-28 13:24:42] [32minfo[39m: Folder tree collection completed
+[2025-08-28 13:24:42] [32minfo[39m: Files and folders analysis
+[2025-08-28 13:24:42] [33mwarn[39m: Failed to extract S3 key from URL
+[2025-08-28 13:24:42] [32minfo[39m: S3 keys collected for deletion
+[2025-08-28 13:24:42] [32minfo[39m: Starting database deletion
+[2025-08-28 13:24:43] [33mwarn[39m: Transaction failed, attempting sequential deletion
+[2025-08-28 13:24:43] [31merror[39m: CRITICAL: Failed to delete DB records after S3 deletion - data inconsistency
+[2025-08-28 13:24:43] [31merror[39m: API Error occurred Failed to delete DB records after S3 deletion
+[2025-08-28 13:26:36] [32minfo[39m: DELETE folder request started
+[2025-08-28 13:26:36] [32minfo[39m: Request validation successful
+[2025-08-28 13:26:37] [32minfo[39m: User authenticated
+[2025-08-28 13:26:38] [32minfo[39m: Database user found
+[2025-08-28 13:26:38] [32minfo[39m: Folder found
+[2025-08-28 13:26:38] [32minfo[39m: Authorization check - ownership status
+[2025-08-28 13:26:38] [32minfo[39m: Authorization successful
+[2025-08-28 13:26:38] [32minfo[39m: Starting folder tree collection
+[2025-08-28 13:26:38] [32minfo[39m: Folder tree collection completed
+[2025-08-28 13:26:38] [32minfo[39m: Files and folders analysis
+[2025-08-28 13:26:38] [32minfo[39m: S3 keys collected for deletion
+[2025-08-28 13:26:38] [32minfo[39m: Starting database deletion
+[2025-08-28 13:26:38] [33mwarn[39m: Transaction failed, attempting sequential deletion
+[2025-08-28 13:26:38] [31merror[39m: CRITICAL: Failed to delete DB records after S3 deletion - data inconsistency
+[2025-08-28 13:26:39] [31merror[39m: API Error occurred Failed to delete DB records after S3 deletion
+[2025-08-28 13:30:40] [32minfo[39m: DELETE folder request started
+[2025-08-28 13:30:40] [32minfo[39m: Request validation successful
+[2025-08-28 13:30:41] [32minfo[39m: User authenticated
+[2025-08-28 13:30:41] [32minfo[39m: Database user found
+[2025-08-28 13:30:41] [32minfo[39m: Folder found
+[2025-08-28 13:30:41] [32minfo[39m: Authorization check - ownership status
+[2025-08-28 13:30:41] [32minfo[39m: Authorization successful
+[2025-08-28 13:30:41] [32minfo[39m: Starting folder tree collection
+[2025-08-28 13:30:41] [32minfo[39m: Folder tree collection completed
+[2025-08-28 13:30:41] [32minfo[39m: Files and folders analysis
+[2025-08-28 13:30:41] [32minfo[39m: S3 keys collected for deletion
+[2025-08-28 13:30:41] [32minfo[39m: Starting database deletion
+[2025-08-28 13:30:42] [32minfo[39m: Database deletion successful via transaction
+[2025-08-28 13:30:42] [32minfo[39m: DELETE folder request completed successfully
+[2025-08-28 13:30:47] [32minfo[39m: DELETE folder request started
+[2025-08-28 13:30:47] [32minfo[39m: Request validation successful
+[2025-08-28 13:30:48] [32minfo[39m: User authenticated
+[2025-08-28 13:30:48] [32minfo[39m: Database user found
+[2025-08-28 13:30:48] [32minfo[39m: Folder found
+[2025-08-28 13:30:48] [32minfo[39m: Authorization check - ownership status
+[2025-08-28 13:30:48] [32minfo[39m: Authorization successful
+[2025-08-28 13:30:48] [32minfo[39m: Starting folder tree collection
+[2025-08-28 13:30:48] [32minfo[39m: Folder tree collection completed
+[2025-08-28 13:30:48] [32minfo[39m: Files and folders analysis
+[2025-08-28 13:30:48] [32minfo[39m: S3 keys collected for deletion
+[2025-08-28 13:30:48] [32minfo[39m: Starting database deletion
+[2025-08-28 13:30:48] [33mwarn[39m: Transaction failed, attempting sequential deletion
+[2025-08-28 13:30:48] [31merror[39m: CRITICAL: Failed to delete DB records after S3 deletion - data inconsistency
+[2025-08-28 13:30:49] [31merror[39m: API Error occurred Failed to delete DB records after S3 deletion
+[2025-08-28 13:31:17] [32minfo[39m: DELETE folder request started
+[2025-08-28 13:31:17] [32minfo[39m: Request validation successful
+[2025-08-28 13:31:17] [32minfo[39m: User authenticated
+[2025-08-28 13:31:17] [32minfo[39m: Database user found
+[2025-08-28 13:31:17] [32minfo[39m: Folder found
+[2025-08-28 13:31:17] [32minfo[39m: Authorization check - ownership status
+[2025-08-28 13:31:17] [32minfo[39m: Authorization successful
+[2025-08-28 13:31:18] [32minfo[39m: Starting folder tree collection
+[2025-08-28 13:31:18] [32minfo[39m: Folder tree collection completed
+[2025-08-28 13:31:18] [32minfo[39m: Files and folders analysis
+[2025-08-28 13:31:18] [32minfo[39m: S3 keys collected for deletion
+[2025-08-28 13:31:18] [32minfo[39m: Starting database deletion
+[2025-08-28 13:31:18] [32minfo[39m: Database deletion successful via transaction
+[2025-08-28 13:31:18] [32minfo[39m: DELETE folder request completed successfully
+[2025-08-28 13:31:24] [32minfo[39m: DELETE folder request started
+[2025-08-28 13:31:25] [32minfo[39m: Request validation successful
+[2025-08-28 13:31:25] [32minfo[39m: User authenticated
+[2025-08-28 13:31:25] [32minfo[39m: Database user found
+[2025-08-28 13:31:25] [32minfo[39m: Folder found
+[2025-08-28 13:31:25] [32minfo[39m: Authorization check - ownership status
+[2025-08-28 13:31:25] [32minfo[39m: Authorization successful
+[2025-08-28 13:31:25] [32minfo[39m: Starting folder tree collection
+[2025-08-28 13:31:25] [32minfo[39m: Folder tree collection completed
+[2025-08-28 13:31:26] [32minfo[39m: Files and folders analysis
+[2025-08-28 13:31:26] [32minfo[39m: S3 keys collected for deletion
+[2025-08-28 13:31:26] [32minfo[39m: Starting database deletion
+[2025-08-28 13:31:26] [33mwarn[39m: Transaction failed, attempting sequential deletion
+[2025-08-28 13:31:26] [31merror[39m: CRITICAL: Failed to delete DB records after S3 deletion - data inconsistency
+[2025-08-28 13:31:26] [31merror[39m: API Error occurred Failed to delete DB records after S3 deletion
+[2025-08-28 13:31:39] [32minfo[39m: DELETE folder request started
+[2025-08-28 13:31:39] [32minfo[39m: Request validation successful
+[2025-08-28 13:31:40] [32minfo[39m: User authenticated
+[2025-08-28 13:31:40] [32minfo[39m: Database user found
+[2025-08-28 13:31:40] [32minfo[39m: Folder found
+[2025-08-28 13:31:40] [32minfo[39m: Authorization check - ownership status
+[2025-08-28 13:31:40] [32minfo[39m: Authorization successful
+[2025-08-28 13:31:40] [32minfo[39m: Starting folder tree collection
+[2025-08-28 13:31:40] [32minfo[39m: Folder tree collection completed
+[2025-08-28 13:31:40] [32minfo[39m: Files and folders analysis
+[2025-08-28 13:31:40] [32minfo[39m: S3 keys collected for deletion
+[2025-08-28 13:31:40] [32minfo[39m: Starting database deletion
+[2025-08-28 13:31:40] [32minfo[39m: Database deletion successful via transaction
+[2025-08-28 13:31:40] [32minfo[39m: DELETE folder request completed successfully
+[2025-08-28 13:31:49] [32minfo[39m: DELETE folder request started
+[2025-08-28 13:31:49] [32minfo[39m: Request validation successful
+[2025-08-28 13:31:49] [32minfo[39m: User authenticated
+[2025-08-28 13:31:49] [32minfo[39m: Database user found
+[2025-08-28 13:31:49] [32minfo[39m: Folder found
+[2025-08-28 13:31:49] [32minfo[39m: Authorization check - ownership status
+[2025-08-28 13:31:49] [32minfo[39m: Authorization successful
+[2025-08-28 13:31:49] [32minfo[39m: Starting folder tree collection
+[2025-08-28 13:31:49] [32minfo[39m: Folder tree collection completed
+[2025-08-28 13:31:49] [32minfo[39m: Files and folders analysis
+[2025-08-28 13:31:49] [32minfo[39m: S3 keys collected for deletion
+[2025-08-28 13:31:49] [32minfo[39m: Starting database deletion
+[2025-08-28 13:31:50] [32minfo[39m: Database deletion successful via transaction
+[2025-08-28 13:31:50] [32minfo[39m: DELETE folder request completed successfully
+[2025-08-28 13:32:57] [32minfo[39m: DELETE folder request started
+[2025-08-28 13:32:57] [32minfo[39m: Request validation successful
+[2025-08-28 13:32:58] [32minfo[39m: User authenticated
+[2025-08-28 13:32:58] [32minfo[39m: Database user found
+[2025-08-28 13:32:58] [32minfo[39m: Folder found
+[2025-08-28 13:32:58] [32minfo[39m: Authorization check - ownership status
+[2025-08-28 13:32:58] [32minfo[39m: Authorization successful
+[2025-08-28 13:32:58] [32minfo[39m: Starting folder tree collection
+[2025-08-28 13:32:58] [32minfo[39m: Folder tree collection completed
+[2025-08-28 13:32:58] [32minfo[39m: Files and folders analysis
+[2025-08-28 13:32:58] [32minfo[39m: S3 keys collected for deletion
+[2025-08-28 13:32:58] [32minfo[39m: Starting database deletion
+[2025-08-28 13:32:58] [33mwarn[39m: Transaction failed, attempting sequential deletion
+[2025-08-28 13:32:58] [31merror[39m: CRITICAL: Failed to delete DB records after S3 deletion - data inconsistency
+[2025-08-28 13:32:59] [31merror[39m: API Error occurred Failed to delete DB records after S3 deletion

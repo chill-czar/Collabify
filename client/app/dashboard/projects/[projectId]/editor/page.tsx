@@ -1,21 +1,24 @@
 "use client";
-import React, { useState } from "react";
-import {
-  FileText,
-  PenTool,
-  Video,
-  Users,
-  Share2,
-} from "lucide-react";
+import React, { useEffect, useState } from "react";
+import { FileText, PenTool, Video, Users, Share2 } from "lucide-react";
 import Notes from "@/components/editor/Notes";
 import WhiteBoard from "@/components/editor/WhiteBoard";
 import VideoCall from "@/components/editor/VideoCall";
 import Files from "@/components/editor/files/Files";
+import { useDispatch } from "react-redux";
+import { hideHeader } from "@/lib/slices/headerSlice";
+import { closeSidebar } from "@/lib/slices/sidebarSlice";
 
 
 const FileManagerTabs = () => {
   const [activeTab, setActiveTab] = useState<string>("Files");
+    const dispatch = useDispatch();
 
+    useEffect(() => {
+      dispatch(hideHeader());
+      dispatch(closeSidebar());
+    }, []);
+  
   const tabs = [
     { name: "Files", icon: FileText },
     { name: "Notes", icon: PenTool },
@@ -27,7 +30,7 @@ const FileManagerTabs = () => {
   return (
     <div className="w-full mx-auto bg-white min-h-screen">
       {/* Header */}
-      <div className="flex items-center justify-between p-6 border-b border-gray-200">
+      {/* <div className="flex items-center justify-between p-6 border-b border-gray-200">
         <h1 className="text-xl font-semibold text-gray-900">
           Website Redesign Project
         </h1>
@@ -41,7 +44,7 @@ const FileManagerTabs = () => {
             <span>Share</span>
           </button>
         </div>
-      </div>
+      </div> */}
 
       {/* Tabs */}
       <div className="flex border-b border-gray-200">

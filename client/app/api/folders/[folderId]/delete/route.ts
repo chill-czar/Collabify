@@ -404,7 +404,7 @@ export async function DELETE(
     // centralized error formatting
     if (err instanceof ApiError) {
       logger.error("API Error occurred", {
-        folderId: await params?.folderId,
+        folderId: params?.folderId,
         duration,
         status: err.status,
         message: err.message,

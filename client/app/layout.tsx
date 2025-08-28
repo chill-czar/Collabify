@@ -2,10 +2,9 @@ import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import ReduxProvider from "../providers/ReduxProvider";
-import QueryProvider from '../providers/QueryProvider';
+import QueryProvider from "../providers/QueryProvider";
 import { ClerkProvider } from "@clerk/nextjs";
 import SyncUser from "@/components/ui/SyncUser";
-
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -35,8 +34,9 @@ export default function RootLayout({
         >
           <QueryProvider>
             <ReduxProvider>
-                    <SyncUser />
-              {children}</ReduxProvider>
+              <SyncUser />
+              {children}
+            </ReduxProvider>
           </QueryProvider>
         </body>
       </html>

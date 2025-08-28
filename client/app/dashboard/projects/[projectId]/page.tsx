@@ -5,17 +5,18 @@ import Members from "@/components/projects/Members";
 import Overview from "@/components/projects/Overview";
 import { useState } from "react";
 import Link from "next/link";
+import { useParams } from "next/navigation";
 interface ProjectPageProps {
   params: {
     projectId: string;
   };
 }
-export default function ProjectDetailPage({ params }: ProjectPageProps) {
+export default  function ProjectDetailPage({ params }: ProjectPageProps) {
   const [activeTab, setActiveTab] = useState<
     "overview" | "members" | "activity"
   >("overview");
-
-  const { projectId } = params;
+  const para = useParams()
+  const { projectId } =  para
 
   // Mock data
   const project = {

@@ -1,3 +1,5 @@
+"use client";
+
 import SyncUser from "@/components/ui/SyncUser";
 import React from "react";
 import Sidebar from "../../components/ui/Sidebar";
@@ -11,7 +13,7 @@ const Layout = ({ children }: { children: React.ReactNode }) => {
 
       <div className="flex flex-1 overflow-hidden">
         {/* Sidebar stays fixed */}
-        <Sidebar/>
+        <Sidebar />
 
         {/* Main content area */}
         <div className="flex flex-col flex-1 overflow-auto">

@@ -1,3 +1,5 @@
+"use client";
+
 import React from "react";
 import Link from "next/link";
 import {
@@ -12,9 +14,24 @@ import {
   Users,
   Plus,
   ChevronLeft,
+  Menu,
 } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
+import { useSelector, useDispatch } from "react-redux";
+import type { RootState } from "@/lib/store"; // adjust import path
+import {
+  toggleSidebar,
+  closeSidebar,
+  toggleCollapse,
+} from "@/lib/slices/sidebarSlice"; // adjust path
 
 const Sidebar = () => {
+  const dispatch = useDispatch();
+  const { isOpen, isCollapsed } = useSelector(
+    (state: RootState) => state.sidebar
+  );
+
   const menuItems = [
     { icon: Home, label: "Dashboard", href: "/dashboard" },
     { icon: FolderOpen, label: "Projects", href: "/dashboard/projects" },
@@ -30,41 +47,66 @@ const Sidebar = () => {
     { icon: Users, label: "Team", href: "/team" },
   ];
 
-  return (
-    <div className=" h-full w-64 h-screen bg-gray-50 border-r border-gray-200 flex flex-col">
+  const SidebarContent = ({
+    collapsed = false,
+    onItemClick = () => {},
+  }: {
+    collapsed?: boolean;
+    onItemClick?: () => void;
+  }) => (
+    <div className="flex h-full flex-col">
       {/* Header */}
-      <div className="flex items-center justify-between p-4 border-b border-gray-200 max-h-15">
-        <div className="flex items-center space-x-3">
-          <div className="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center">
-            <span className="text-white font-semibold text-sm">C</span>
+      <div className="flex h-14 items-center justify-between border-b px-4 h-15">
+        {!collapsed ? (
+          <div className="flex items-center space-x-3">
+            <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary">
+              <span className="text-sm font-semibold text-primary-foreground">
+                C
+              </span>
+            </div>
+            <span className="font-semibold">Collabify</span>
           </div>
-          <span className="font-semibold text-gray-900">Collabify</span>
-        </div>
-        <button className="p-1 hover:bg-gray-100 rounded">
-          <ChevronLeft className="w-4 h-4 text-gray-500" />
-        </button>
+        ) : (
+          <div className="mx-auto">
+            <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary">
+              <span className="text-sm font-semibold text-primary-foreground">
+                C
+              </span>
+            </div>
+          </div>
+        )}
       </div>
 
       {/* New Project Button */}
-      <div className="p-4">
-        <button className="w-full bg-gray-900 text-white rounded-lg px-4 py-3 flex items-center space-x-3 hover:bg-gray-800 transition-colors">
-          <Plus className="w-4 h-4" />
-          <span className="font-medium">New Project</span>
-        </button>
-      </div>
+      {!collapsed && (
+        <div className="p-4">
+          <Button
+            className="w-full justify-start space-x-2"
+            onClick={onItemClick}
+            size={collapsed ? "icon" : "default"}
+          >
+            <Plus className="h-4 w-4" />
+            <span>New Project</span>
+          </Button>
+        </div>
+      )}
 
       {/* Main Navigation */}
       <nav className="flex-1 px-4">
         <ul className="space-y-2">
           {menuItems.map((item) => (
             <li key={item.label}>
-              <Link
-                href={item.href}
-                className="flex items-center space-x-3 px-3 py-2 text-gray-700 hover:bg-gray-100 rounded-lg transition-colors group"
+              <Button
+                variant="ghost"
+                className="w-full justify-start space-x-2"
+                size={collapsed ? "icon" : "default"}
+                asChild
               >
-                <item.icon className="w-5 h-5 text-gray-500 group-hover:text-gray-700" />
-                <span className="font-medium">{item.label}</span>
-              </Link>
+                <Link href={item.href} onClick={onItemClick}>
+                  <item.icon className="h-4 w-4" />
+                  {!collapsed && <span>{item.label}</span>}
+                </Link>
+              </Button>
             </li>
           ))}
         </ul>
@@ -72,24 +114,77 @@ const Sidebar = () => {
 
       {/* Settings Section */}
       <div className="px-4 pb-4">
-        <div className="mb-3">
-          <h3 className="text-sm font-medium text-gray-500 px-3">Settings</h3>
-        </div>
+        {!collapsed && (
+          <div className="mb-3">
+            <h3 className="px-3 text-xs font-medium text-muted-foreground uppercase tracking-wider">
+              Settings
+            </h3>
+          </div>
+        )}
         <ul className="space-y-2">
           {settingsItems.map((item) => (
             <li key={item.label}>
-              <Link
-                href={item.href}
-                className="flex items-center space-x-3 px-3 py-2 text-gray-700 hover:bg-gray-100 rounded-lg transition-colors group"
+              <Button
+                variant="ghost"
+                className="w-full justify-start space-x-2"
+                size={collapsed ? "icon" : "default"}
+                asChild
               >
-                <item.icon className="w-5 h-5 text-gray-500 group-hover:text-gray-700" />
-                <span className="font-medium">{item.label}</span>
-              </Link>
+                <Link href={item.href} onClick={onItemClick}>
+                  <item.icon className="h-4 w-4" />
+                  {!collapsed && <span>{item.label}</span>}
+                </Link>
+              </Button>
             </li>
           ))}
         </ul>
       </div>
     </div>
+  );
+
+  return (
+    <>
+      {/* Mobile Trigger Button */}
+      <div className="md:hidden">
+        <Sheet open={isOpen} onOpenChange={() => dispatch(toggleSidebar())}>
+          <SheetTrigger asChild>
+            <Button variant="ghost" size="icon" className="md:hidden">
+              <Menu className="h-4 w-4" />
+              <span className="sr-only">Toggle sidebar</span>
+            </Button>
+          </SheetTrigger>
+          <SheetContent side="left" className="w-64 p-0">
+            <SidebarContent onItemClick={() => dispatch(closeSidebar())} />
+          </SheetContent>
+        </Sheet>
+      </div>
+
+      {/* Desktop Sidebar */}
+      <div className="hidden md:flex">
+        <div
+          className={`relative flex h-screen flex-col border-r bg-background transition-all duration-300 ease-in-out ${
+            isCollapsed ? "w-16" : "w-64"
+          }`}
+        >
+          {/* Collapse Toggle Button */}
+          <Button
+            variant="ghost"
+            size="icon"
+            className="absolute -right-3 top-5 z-10 h-6 w-6 rounded-full border bg-background shadow-md"
+            onClick={() => dispatch(toggleCollapse())}
+            aria-label={isCollapsed ? "Expand sidebar" : "Collapse sidebar"}
+          >
+            <ChevronLeft
+              className={`h-3 w-3 transition-transform ${
+                isCollapsed ? "rotate-180" : ""
+              }`}
+            />
+          </Button>
+
+          <SidebarContent collapsed={isCollapsed} />
+        </div>
+      </div>
+    </>
   );
 };
 

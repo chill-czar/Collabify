@@ -7,11 +7,12 @@ import { setCurrentFolderId } from "@/lib/slices/currentFolderIdSlice";
 const Breadcrumbs = () => {
   const breadcrumbs = useSelector((state: RootState) => state.breadCrumb.items);
   const dispatch = useDispatch();
-  const handelnavigateToBreadcrumb = (index: number , folderId: string | null ) => {
+  const handelnavigateToBreadcrumb = (
+    index: number,
+    folderId: string | null
+  ) => {
     dispatch(navigateToBreadcrumb(index));
     dispatch(setCurrentFolderId(folderId));
-    
-
   };
   const iconMap: Record<string, LucideIcon> = {
     Home,
