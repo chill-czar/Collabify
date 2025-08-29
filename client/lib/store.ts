@@ -5,6 +5,8 @@ import breadCrumbReducer from '@/lib/slices/breadcrumbSlice'
 import sidebarReducer from "@/lib/slices/sidebarSlice";
 import headerReducer from "@/lib/slices/headerSlice"
 import tabsReducer from "@/lib/slices/tabSlice"
+import currentNoteIdReducer from "./slices/currentNoteIdSlice";
+
 export const store = configureStore({
   reducer: {
     user: userReducer,
@@ -12,7 +14,8 @@ export const store = configureStore({
     breadCrumb: breadCrumbReducer,
     sidebar: sidebarReducer,
     headerSlice: headerReducer,
-    tabs:tabsReducer,
+    tabs: tabsReducer,
+    currentNoteId: currentNoteIdReducer,
   },
 });
 

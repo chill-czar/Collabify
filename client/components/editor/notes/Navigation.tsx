@@ -1,6 +1,6 @@
 "use client";
 import React, { ElementRef, useEffect, useRef, useState } from "react";
-import { useParams, usePathname, useRouter } from "next/navigation";
+import { useParams, useRouter } from "next/navigation";
 import { useMutation } from "convex/react";
 import {
   ChevronsLeft,
@@ -29,13 +29,16 @@ import { Item } from "./Item";
 import { DocumentList } from "./document-list";
 // import { TrashBox } from "./trash-box";
 import { Navbar } from "./Navbar";
+import { useDispatch, useSelector } from "react-redux";
+import { RootState } from "@/lib/store";
+import { setCurrentNoteId } from "@/lib/slices/currentNoteIdSlice";
 
 export function Navigation() {
   const router = useRouter();
   const settings = useSettings();
   const search = useSearch();
   const params = useParams();
-  const pathname = usePathname();
+  //   const pathname = usePathname();
   const isMobile = useMediaQuery("(max-width:768px)");
   const create = useMutation(api.documents.create);
 
@@ -44,7 +47,10 @@ export function Navigation() {
   const navbarRef = useRef<ElementRef<"div">>(null);
   const [isResetting, setIsResetting] = useState(false);
   const [isCollapsed, setIsCollapsed] = useState(isMobile);
-
+  const currentNoteId = useSelector(
+    (state: RootState) => state.currentNoteId.noteId
+  );
+  const dispatch = useDispatch();
   useEffect(() => {
     if (isMobile) {
       collapse();
@@ -57,7 +63,7 @@ export function Navigation() {
     if (isMobile) {
       collapse();
     }
-  }, [pathname, isMobile]);
+  }, [currentNoteId, isMobile]);
 
   const handleMouseDown = (
     event: React.MouseEvent<HTMLDivElement, MouseEvent>
@@ -123,8 +129,10 @@ export function Navigation() {
   };
 
   const handleCreate = () => {
-    const promise = create({ title: "Untitled" }).then((documentId) =>
-      router.push(`/documents/${documentId}`)
+    const promise = create({ title: "Untitled" }).then((documentId) =>{
+        dispatch(setCurrentNoteId(documentId))
+        console.log(documentId)
+    }
     );
 
     toast.promise(promise, {
@@ -198,7 +206,7 @@ export function Navigation() {
         )}
         ref={navbarRef}
       >
-        {!!params.documentId ? (
+        {!!params.currentNoteId ? (
           <Navbar isCollapsed={isCollapsed} onResetWidth={resetWidth} />
         ) : (
           // null

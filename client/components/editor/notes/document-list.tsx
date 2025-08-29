@@ -1,7 +1,6 @@
 "use client";
 import { useState } from "react";
 import { useParams } from "next/navigation";
-import { useRouter } from "next/navigation";
 
 import { api } from "@/convex/_generated/api";
 import { Doc, Id } from "@/convex/_generated/dataModel";
@@ -9,6 +8,8 @@ import { useQuery } from "convex/react";
 import { cn } from "@/lib/utils";
 import { Item } from "./Item";
 import { FileIcon } from "lucide-react";
+import { useDispatch } from "react-redux";
+import { setCurrentNoteId } from "@/lib/slices/currentNoteIdSlice";
 
 interface DocumentListProps {
   parentDocumentId?: Id<"documents">;
@@ -21,9 +22,8 @@ export function DocumentList({
   level = 0,
 }: DocumentListProps) {
   const params = useParams();
-  const router = useRouter();
   const [expanded, setExpanded] = useState<Record<string, boolean>>({});
-
+  const dispatch = useDispatch();
   const onExpand = (documentId: string) => {
     setExpanded((prevExpanded) => ({
       ...prevExpanded,
@@ -34,9 +34,10 @@ export function DocumentList({
   const documents = useQuery(api.documents.getSidebar, {
     parentDocument: parentDocumentId,
   });
-
-  const onRedirect = (documentId: string) => {
-    router.push(`/documents/${documentId}`);
+  const handelClick = (documentId: string) => {
+    console.log(documentId);
+    console.log("item clicked");
+    dispatch(setCurrentNoteId(documentId));
   };
 
   if (documents === undefined) {
@@ -69,7 +70,7 @@ export function DocumentList({
         <div key={document._id}>
           <Item
             id={document._id}
-            onClick={() => onRedirect(document._id)}
+            onClick={() => handelClick(document._id)}
             label={document.title}
             icon={FileIcon}
             documentIcon={document.icon}

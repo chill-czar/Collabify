@@ -5,6 +5,7 @@ import ReduxProvider from "../providers/ReduxProvider";
 import QueryProvider from "../providers/QueryProvider";
 import SyncUser from "@/components/ui/SyncUser";
 import { ConvexClientProvider } from "@/providers/ConvexProvider";
+import { EdgeStoreProvider } from "@/lib/edgestore";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -35,7 +36,7 @@ export default function RootLayout({
           <QueryProvider>
             <ReduxProvider>
               <SyncUser />
-              {children}
+              <EdgeStoreProvider>{children}</EdgeStoreProvider>
             </ReduxProvider>
           </QueryProvider>
         </body>

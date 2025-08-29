@@ -24,6 +24,8 @@ import {
 } from "lucide-react";
 import { toast } from "sonner";
 import { useUser } from "@clerk/clerk-react";
+import { setCurrentFolderId } from "@/lib/slices/currentFolderIdSlice";
+import { useDispatch } from "react-redux";
 
 interface ItemProps {
   id?: Id<"documents">;
@@ -53,7 +55,8 @@ export function Item({
   const { user } = useUser();
   const router = useRouter();
   const create = useMutation(api.documents.create);
-  const archive = useMutation(api.documents.archive);
+    const archive = useMutation(api.documents.archive);
+    const dispatch = useDispatch()
 
   const onArchive = (event: React.MouseEvent<HTMLDivElement, MouseEvent>) => {
     event.stopPropagation();
@@ -79,8 +82,9 @@ export function Item({
       (documentId) => {
         if (!expanded) {
           onExpand?.();
-        }
-        router.push(`/documents/${documentId}`);
+            }
+            dispatch(setCurrentFolderId(documentId))
+            console.log("New note is created",documentId)
       }
     );
 
