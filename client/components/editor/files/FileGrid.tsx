@@ -1,12 +1,9 @@
 // components/files/FileGrid.tsx
-import React, { useEffect, useState } from "react";
+import React from "react";
 import { FileCard } from "./FileCard";
 import { FolderTile } from "./FolderTile";
 import { EmptyState } from "./EmptyState";
 import { useFiles } from "@/lib/files/api";
-import { Loading } from "@/components/editor/files/Loading";
-import Breadcrumbs from "./Breadcrumbs";
-import { Home } from "lucide-react";
 import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "@/lib/store";
 import { setCurrentFolderId } from "@/lib/slices/currentFolderIdSlice";

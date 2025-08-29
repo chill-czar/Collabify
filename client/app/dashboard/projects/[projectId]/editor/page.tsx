@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useEffect } from "react";
-import { FileText, PenTool, Video } from "lucide-react";
+import { FileText, PenTool, Video, Calendar1 } from "lucide-react";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import Notes from "@/components/editor/Notes";
 import WhiteBoard from "@/components/editor/WhiteBoard";
@@ -12,6 +12,7 @@ import { hideHeader } from "@/lib/slices/headerSlice";
 import { closeSidebar } from "@/lib/slices/sidebarSlice";
 import { RootState } from "@/lib/slices/tabSlice";
 import { setActiveTab } from "@/lib/slices/tabSlice";
+import Calender from "@/components/editor/Calender";
 
 const FileManagerTabs = () => {
   const dispatch = useDispatch();
@@ -28,6 +29,7 @@ const FileManagerTabs = () => {
     { name: "Notes", icon: PenTool, content: <Notes /> },
     { name: "Whiteboard", icon: PenTool, content: <WhiteBoard /> },
     { name: "Video Call", icon: Video, content: <VideoCall /> },
+    { name: "Calender", icon: Calendar1, content: <Calender /> },
   ];
 
   return (

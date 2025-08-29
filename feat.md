@@ -12,3 +12,7 @@ user common source of truth for currentuser clerk id
 improve frontend statemamagemg by addding reudx slices
 add toaster in fronted for all the logical actions npm-sooner 
 u can add some consistent ui component like button , alery modal etc of shaddcn 
+sidebar should open on hover
+custom colors on files by context menu 
+fastest navigation
+

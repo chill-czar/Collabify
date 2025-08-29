@@ -3,8 +3,8 @@ import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import ReduxProvider from "../providers/ReduxProvider";
 import QueryProvider from "../providers/QueryProvider";
-import { ClerkProvider } from "@clerk/nextjs";
 import SyncUser from "@/components/ui/SyncUser";
+import { ConvexClientProvider } from "@/providers/ConvexProvider";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -27,7 +27,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <ClerkProvider>
+    <ConvexClientProvider>
       <html lang="en">
         <body
           className={`${geistSans.variable} ${geistMono.variable} antialiased`}
@@ -40,6 +40,6 @@ export default function RootLayout({
           </QueryProvider>
         </body>
       </html>
-    </ClerkProvider>
+    </ConvexClientProvider>
   );
 }
