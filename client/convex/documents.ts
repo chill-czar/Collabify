@@ -53,6 +53,7 @@ export const archive = mutation({
 export const getSidebar = query({
   args: {
     parentDocument: v.optional(v.id("documents")),
+    projectId: v.string()
   },
   handler: async (context, args) => {
     const identity = await context.auth.getUserIdentity();
@@ -60,13 +61,11 @@ export const getSidebar = query({
     if (!identity) {
       throw new Error("Not authenticated");
     }
-
-    const userId = identity.subject;
-
+    
     const documents = await context.db
       .query("documents")
-      .withIndex("by_user_parent", (q) =>
-        q.eq("userId", userId).eq("parentDocument", args.parentDocument)
+      .withIndex("by_project", (q) =>
+        q.eq("projectId", args.projectId).eq("parentDocument", args.parentDocument)
       )
       .filter((q) => q.eq(q.field("isArchived"), false))
       .order("desc")
@@ -80,6 +79,7 @@ export const create = mutation({
   args: {
     title: v.string(),
     parentDocument: v.optional(v.id("documents")),
+    projectId: v.optional(v.string()),
   },
   handler: async (context, args) => {
     const identity = await context.auth.getUserIdentity();
@@ -87,6 +87,7 @@ export const create = mutation({
     if (!identity) {
       throw new Error("Not authenticated");
     }
+    console.log(args.projectId)
 
     const userId = identity.subject;
 
@@ -94,6 +95,7 @@ export const create = mutation({
       title: args.title,
       parentDocument: args.parentDocument,
       userId,
+      projectId: args.projectId,
       isArchived: false,
       isPublished: false,
     });

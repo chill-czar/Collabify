@@ -37,7 +37,6 @@ export function Navigation() {
   const router = useRouter();
   const settings = useSettings();
   const search = useSearch();
-  const params = useParams();
   //   const pathname = usePathname();
   const isMobile = useMediaQuery("(max-width:768px)");
   const create = useMutation(api.documents.create);
@@ -50,6 +49,9 @@ export function Navigation() {
   const currentNoteId = useSelector(
     (state: RootState) => state.currentNoteId.noteId
   );
+
+  const params = useParams();
+  const projectId = params?.projectId as string;
   const dispatch = useDispatch();
   useEffect(() => {
     if (isMobile) {
@@ -129,11 +131,13 @@ export function Navigation() {
   };
 
   const handleCreate = () => {
-    const promise = create({ title: "Untitled" }).then((documentId) =>{
-        dispatch(setCurrentNoteId(documentId))
-        console.log(documentId)
-    }
-    );
+    const promise = create({
+      title: "Untitled",
+      projectId,
+    }).then((documentId) => {
+      dispatch(setCurrentNoteId(documentId));
+      console.log(documentId);
+    });
 
     toast.promise(promise, {
       loading: "Creating new note...",

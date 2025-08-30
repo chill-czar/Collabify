@@ -1,6 +1,6 @@
 "use client";
 
-import { useRouter } from "next/navigation";
+import { useParams, useRouter } from "next/navigation";
 
 import { Skeleton } from "@/components/ui/skeleton";
 import { api } from "@/convex/_generated/api";
@@ -24,8 +24,8 @@ import {
 } from "lucide-react";
 import { toast } from "sonner";
 import { useUser } from "@clerk/clerk-react";
-import { setCurrentFolderId } from "@/lib/slices/currentFolderIdSlice";
 import { useDispatch } from "react-redux";
+import { setCurrentNoteId } from "@/lib/slices/currentNoteIdSlice";
 
 interface ItemProps {
   id?: Id<"documents">;
@@ -55,8 +55,11 @@ export function Item({
   const { user } = useUser();
   const router = useRouter();
   const create = useMutation(api.documents.create);
-    const archive = useMutation(api.documents.archive);
-    const dispatch = useDispatch()
+  const archive = useMutation(api.documents.archive);
+  const dispatch = useDispatch();
+  const params = useParams();
+  const projectId = params?.projectId as string;
+console.log("projectid",projectId)
 
   const onArchive = (event: React.MouseEvent<HTMLDivElement, MouseEvent>) => {
     event.stopPropagation();
@@ -77,16 +80,20 @@ export function Item({
 
   const onCreate = (event: React.MouseEvent<HTMLDivElement, MouseEvent>) => {
     event.stopPropagation();
-    if (!id) return;
-    const promise = create({ title: "Untitled", parentDocument: id }).then(
-      (documentId) => {
-        if (!expanded) {
-          onExpand?.();
-            }
-            dispatch(setCurrentFolderId(documentId))
-            console.log("New note is created",documentId)
+
+    if (!id || !projectId) return;
+    const promise = create({
+      title: "Untitled",
+      parentDocument: id,
+      projectId,
+    }).then((documentId) => {
+      if (!expanded) {
+        onExpand?.();
       }
-    );
+      console.log(promise)
+      dispatch(setCurrentNoteId(documentId));
+      console.log("New note is created", documentId);
+    });
 
     toast.promise(promise, {
       loading: "Creating a new note...",

@@ -6,7 +6,7 @@ import QueryProvider from "../providers/QueryProvider";
 import SyncUser from "@/components/ui/SyncUser";
 import { ConvexClientProvider } from "@/providers/ConvexProvider";
 import { EdgeStoreProvider } from "@/lib/edgestore";
-
+import { Toaster } from "sonner";
 const geistSans = Geist({
   variable: "--font-geist-sans",
   subsets: ["latin"],
@@ -36,7 +36,9 @@ export default function RootLayout({
           <QueryProvider>
             <ReduxProvider>
               <SyncUser />
-              <EdgeStoreProvider>{children}</EdgeStoreProvider>
+              <EdgeStoreProvider>
+                <Toaster position="bottom-center" />
+                {children}</EdgeStoreProvider>
             </ReduxProvider>
           </QueryProvider>
         </body>

@@ -3,3 +3,5 @@ openign documetn should be open in notes tab not in push otther page
 
 menu icon is showing on top corner it should be shown on notes top corner 
 height of navigation component 
+
+notes conves schema should havev projectid and it should be fetched by current projectid and saved by projectids 

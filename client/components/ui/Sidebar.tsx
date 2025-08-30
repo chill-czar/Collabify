@@ -25,12 +25,17 @@ import {
   closeSidebar,
   toggleCollapse,
 } from "@/lib/slices/sidebarSlice"; // adjust path
+import { UserItem } from "../Dashboard/UserItem";
+import { useUser } from "@clerk/nextjs";
+import { Avatar } from "./avatar";
+import { AvatarImage } from "@radix-ui/react-avatar";
 
 const Sidebar = () => {
   const dispatch = useDispatch();
   const { isOpen, isCollapsed } = useSelector(
     (state: RootState) => state.sidebar
   );
+  const { user } = useUser();
 
   const menuItems = [
     { icon: Home, label: "Dashboard", href: "/dashboard" },
@@ -58,21 +63,14 @@ const Sidebar = () => {
       {/* Header */}
       <div className="flex h-14 items-center justify-between border-b px-4 h-15">
         {!collapsed ? (
-          <div className="flex items-center space-x-3">
-            <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary">
-              <span className="text-sm font-semibold text-primary-foreground">
-                C
-              </span>
-            </div>
-            <span className="font-semibold">Collabify</span>
+          <div>
+            <UserItem />
           </div>
         ) : (
-          <div className="mx-auto">
-            <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary">
-              <span className="text-sm font-semibold text-primary-foreground">
-                C
-              </span>
-            </div>
+          <div className="">
+            <Avatar className="w-8 h-8">
+              <AvatarImage src={user?.imageUrl} />
+            </Avatar>
           </div>
         )}
       </div>

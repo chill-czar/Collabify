@@ -31,12 +31,13 @@ export function DocumentList({
     }));
   };
 
+  const projectId = params?.projectId as string;
+
   const documents = useQuery(api.documents.getSidebar, {
     parentDocument: parentDocumentId,
+    projectId,
   });
   const handelClick = (documentId: string) => {
-    console.log(documentId);
-    console.log("item clicked");
     dispatch(setCurrentNoteId(documentId));
   };
 
