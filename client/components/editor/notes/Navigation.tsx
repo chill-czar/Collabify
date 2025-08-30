@@ -15,7 +15,6 @@ import { useMediaQuery } from "usehooks-ts";
 import { toast } from "sonner";
 
 import { cn } from "@/lib/utils";
-// import { UserItem } from "./user-item";
 import { api } from "@/convex/_generated/api";
 import {
   Popover,
@@ -27,17 +26,15 @@ import { useSettings } from "@/hooks/use-settings";
 
 import { Item } from "./Item";
 import { DocumentList } from "./document-list";
-// import { TrashBox } from "./trash-box";
 import { Navbar } from "./Navbar";
 import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "@/lib/store";
 import { setCurrentNoteId } from "@/lib/slices/currentNoteIdSlice";
+import { TrashBox } from "./TrashBox";
 
 export function Navigation() {
-  const router = useRouter();
   const settings = useSettings();
   const search = useSearch();
-  //   const pathname = usePathname();
   const isMobile = useMediaQuery("(max-width:768px)");
   const create = useMutation(api.documents.create);
 
@@ -169,7 +166,6 @@ export function Navigation() {
             <ChevronsLeft className="w-6 h-6" />
           </div>
           <div>
-            {/* <UserItem /> */}
             <Item
               label="Search"
               icon={Search}
@@ -190,7 +186,7 @@ export function Navigation() {
                 className="p-0 w-72 "
                 side={isMobile ? "bottom" : "right"}
               >
-                {/* <TrashBox /> */}
+                <TrashBox />
               </PopoverContent>
             </Popover>
           </div>
@@ -213,7 +209,6 @@ export function Navigation() {
         {!!params.currentNoteId ? (
           <Navbar isCollapsed={isCollapsed} onResetWidth={resetWidth} />
         ) : (
-          // null
           <nav className="bg-transparent px-3 py-2 w-full">
             {isCollapsed && (
               <MenuIcon

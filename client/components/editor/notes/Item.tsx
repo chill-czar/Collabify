@@ -152,7 +152,7 @@ console.log("projectid",projectId)
               </div>
             </DropdownMenuTrigger>
             <DropdownMenuContent
-              className="w-60"
+              className="w-60 z-[1000000]"
               align="start"
               side="right"
               forceMount
