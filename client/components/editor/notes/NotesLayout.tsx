@@ -5,6 +5,7 @@ import { useConvexAuth } from "convex/react";
 import { redirect } from "next/navigation";
 import React from "react";
 import { Navigation } from "./Navigation";
+import { SearchCommand } from './SearchCommand';
 
 export default function NotesLayout({
   children,
@@ -32,6 +33,7 @@ export default function NotesLayout({
 
       {/* Children area takes full height + scrolls internally */}
       <main className="flex-1 h-full w-full overflow-y-auto">
+        <SearchCommand />
         {children}
       </main>
     </div>
