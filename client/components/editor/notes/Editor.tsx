@@ -27,7 +27,6 @@ function Editor({ onChange, initialContent, editable }: EditorProps) {
       : undefined,
     uploadFile: handleUpload,
   });
-
   return (
     <div>
       <BlockNoteView

@@ -9,16 +9,14 @@ import { FileText } from "lucide-react";
 import dynamic from "next/dynamic";
 import { api } from "@/convex/_generated/api";
 import { Id } from "@/convex/_generated/dataModel";
+import { Cover } from "./Cover";
+import { Toolbar } from "./Toolbar";
 
 const Notes = () => {
   const { isLoading } = useConvexAuth();
   const currentNoteId = useSelector(
     (state: RootState) => state.currentNoteId.noteId
   ) as Id<"documents"> | null;
-
-  useEffect(() => {
-    console.log("current note id is update", currentNoteId);
-  }, [currentNoteId]);
 
   // Always define hooks in same order
   const document = useQuery(
@@ -60,7 +58,7 @@ const Notes = () => {
   }
 
   if (document === undefined) {
-    return <div>Loading...</div>;
+    return <Spinner size="lg"/>;
   }
 
   if (document === null) {
@@ -68,11 +66,11 @@ const Notes = () => {
   }
 
   return (
-    <div className="">
-      <div className="pb-40">
-        <div className="md:max-w-3xl lg:md-max-w-4xl mx-auto">
-          <Editor onChange={onChange} initialContent={document.content} />
-        </div>
+    <div className="pb-40">
+      <Cover url={document.coverImage} />
+      <div className="md:max-w-3xl lg:md-max-w-4xl mx-auto">
+        <Toolbar initialData={document} />
+        <Editor onChange={onChange} initialContent={document.content} />
       </div>
     </div>
   );

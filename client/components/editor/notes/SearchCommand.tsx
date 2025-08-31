@@ -16,17 +16,18 @@ import {
 import { useSearch } from "@/hooks/use-search";
 import { api } from "@/convex/_generated/api";
 import { useEffect, useState } from "react";
+import { useDispatch } from "react-redux";
+import { setCurrentNoteId } from "@/lib/slices/currentNoteIdSlice";
 
 export function SearchCommand() {
   const { user } = useUser();
-  const router = useRouter();
   const documents = useQuery(api.documents.getSearch);
   const [isMounted, setIsMounted] = useState(false);
 
   const toggle = useSearch((store) => store.toggle);
   const isOpen = useSearch((store) => store.isOpen);
   const onClose = useSearch((store) => store.onClose);
-
+  const dispatch = useDispatch()
   useEffect(() => {
     setIsMounted(true);
   }, []);
@@ -43,7 +44,7 @@ export function SearchCommand() {
   }, [toggle]);
 
   const onSelect = (id: string) => {
-    router.push(`/documents/${id}`);
+    dispatch(setCurrentNoteId(id))
     onClose();
   };
 

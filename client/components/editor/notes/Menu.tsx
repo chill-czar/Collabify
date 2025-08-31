@@ -1,11 +1,9 @@
 "use client";
 
-import { useRouter } from "next/navigation";
 import { useUser } from "@clerk/clerk-react";
 import { useMutation } from "convex/react";
 import { toast } from "sonner";
 import { MoreHorizontal, Trash } from "lucide-react";
-
 import { Id } from "@/convex/_generated/dataModel";
 import {
   DropdownMenu,
@@ -17,15 +15,16 @@ import {
 import { api } from "@/convex/_generated/api";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
+import { useDispatch } from "react-redux";
+import { setCurrentNoteId } from "@/lib/slices/currentNoteIdSlice";
 
 interface MenuProps {
   documentId: Id<"documents">;
 }
 
 export function Menu({ documentId }: MenuProps) {
-  const router = useRouter();
   const { user } = useUser();
-
+ const dispatch = useDispatch()
   const archive = useMutation(api.documents.archive);
 
   const onArchive = () => {
@@ -36,7 +35,7 @@ export function Menu({ documentId }: MenuProps) {
       success: "Note Moved to trash!",
       error: "Failed to archive note.",
     });
-    router.push("/documents");
+    dispatch(setCurrentNoteId(null))
   };
 
   return (

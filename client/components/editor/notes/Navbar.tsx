@@ -4,23 +4,25 @@ interface NavbarProps {
   isCollapsed: boolean;
   onResetWidth: () => void;
 }
-import { useParams } from "next/navigation";
 import { useQuery } from "convex/react";
 import { MenuIcon } from "lucide-react";
-
 import { api } from "@/convex/_generated/api";
 import { Id } from "@/convex/_generated/dataModel";
-
 import { Title } from "./Title";
 import { Banner } from "./Banner";
 import { Menu } from "./Menu";
 import { Publish } from "./Publish";
+import { useSelector } from "react-redux";
+import { RootState } from "@/lib/store";
 
 export function Navbar({ isCollapsed, onResetWidth }: NavbarProps) {
-  const params = useParams();
+  
+  const currentNoteId = useSelector(
+      (state: RootState) => state.currentNoteId.noteId
+    );
 
   const document = useQuery(api.documents.getById, {
-    documentId: params.documentId as Id<"documents">,
+    documentId: currentNoteId as Id<"documents">,
   });
 
   if (document === undefined) {

@@ -1,6 +1,4 @@
 "use client";
-
-import { useRouter } from "next/navigation";
 import { useMutation } from "convex/react";
 import { toast } from "sonner";
 
@@ -8,17 +6,17 @@ import { Id } from "@/convex/_generated/dataModel";
 import { api } from "@/convex/_generated/api";
 import { Button } from "@/components/ui/button";
 import { ConfirmModal } from "@/components/modals/confirm-modal";
+import { useDispatch } from "react-redux";
+import { setCurrentNoteId } from "@/lib/slices/currentNoteIdSlice";
 
 interface BannerProps {
   documentId: Id<"documents">;
 }
 
 export function Banner({ documentId }: BannerProps) {
-  const router = useRouter();
-
   const remove = useMutation(api.documents.remove);
   const restore = useMutation(api.documents.restore);
-
+  const dispatch = useDispatch()
   const onRemove = () => {
     const promise = remove({ id: documentId });
 
@@ -28,7 +26,7 @@ export function Banner({ documentId }: BannerProps) {
       error: "Failed to delete note.",
     });
 
-    router.push("/documents");
+    dispatch(setCurrentNoteId(null))
   };
 
   const onRestore = () => {

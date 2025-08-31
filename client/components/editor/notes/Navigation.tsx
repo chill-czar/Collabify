@@ -1,6 +1,6 @@
 "use client";
 import React, { ElementRef, useEffect, useRef, useState } from "react";
-import { useParams, useRouter } from "next/navigation";
+import { useParams} from "next/navigation";
 import { useMutation } from "convex/react";
 import {
   ChevronsLeft,
@@ -133,7 +133,6 @@ export function Navigation() {
       projectId,
     }).then((documentId) => {
       dispatch(setCurrentNoteId(documentId));
-      console.log(documentId);
     });
 
     toast.promise(promise, {
@@ -206,7 +205,7 @@ export function Navigation() {
         )}
         ref={navbarRef}
       >
-        {!!params.currentNoteId ? (
+        {!!currentNoteId ? (
           <Navbar isCollapsed={isCollapsed} onResetWidth={resetWidth} />
         ) : (
           <nav className="bg-transparent px-3 py-2 w-full">

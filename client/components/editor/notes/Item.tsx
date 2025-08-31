@@ -53,18 +53,16 @@ export function Item({
   expanded,
 }: ItemProps) {
   const { user } = useUser();
-  const router = useRouter();
   const create = useMutation(api.documents.create);
   const archive = useMutation(api.documents.archive);
   const dispatch = useDispatch();
   const params = useParams();
   const projectId = params?.projectId as string;
-console.log("projectid",projectId)
 
   const onArchive = (event: React.MouseEvent<HTMLDivElement, MouseEvent>) => {
     event.stopPropagation();
     if (!id) return;
-    const promise = archive({ id }).then(() => router.push("/documents"));
+    const promise = archive({ id }).then(() => dispatch(setCurrentNoteId(null)));
 
     toast.promise(promise, {
       loading: "Moving to trash...",

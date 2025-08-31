@@ -8,8 +8,9 @@ import { useQuery } from "convex/react";
 import { cn } from "@/lib/utils";
 import { Item } from "./Item";
 import { FileIcon } from "lucide-react";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { setCurrentNoteId } from "@/lib/slices/currentNoteIdSlice";
+import { RootState } from "@/lib/store";
 
 interface DocumentListProps {
   parentDocumentId?: Id<"documents">;
@@ -32,7 +33,9 @@ export function DocumentList({
   };
 
   const projectId = params?.projectId as string;
-
+  const currentNoteId = useSelector(
+    (state: RootState) => state.currentNoteId.noteId
+  ) as Id<"documents"> | null;
   const documents = useQuery(api.documents.getSidebar, {
     parentDocument: parentDocumentId,
     projectId,
@@ -75,7 +78,7 @@ export function DocumentList({
             label={document.title}
             icon={FileIcon}
             documentIcon={document.icon}
-            active={params.documentId === document._id}
+            active={currentNoteId === document._id}
             level={level}
             onExpand={() => onExpand(document._id)}
             expanded={expanded[document._id]}

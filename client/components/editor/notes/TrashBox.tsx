@@ -10,22 +10,26 @@ import { Id } from "@/convex/_generated/dataModel";
 import { Spinner } from "@/components/spinner";
 import { Input } from "@/components/ui/input";
 import { ConfirmModal } from "@/components/modals/confirm-modal";
+import { useDispatch, useSelector } from "react-redux";
+import { setCurrentNoteId } from "@/lib/slices/currentNoteIdSlice";
+import { RootState } from "@/lib/store";
 
 export function TrashBox() {
-  const router = useRouter();
-  const params = useParams();
   const documents = useQuery(api.documents.getTrash);
   const restore = useMutation(api.documents.restore);
   const remove = useMutation(api.documents.remove);
-
+  const dispatch = useDispatch()
   const [search, setSearch] = useState("");
+  const currentNoteId = useSelector(
+    (state: RootState) => state.currentNoteId.noteId
+  ) as Id<"documents"> | null;
 
   const filteredDocuments = documents?.filter((document) => {
     return document.title.toLowerCase().includes(search.toLocaleLowerCase());
   });
 
   const onClick = (documentId: string) => {
-    router.push(`/documents/${documentId}`);
+    dispatch(setCurrentNoteId(documentId))
   };
 
   const onRestore = (
@@ -51,8 +55,8 @@ export function TrashBox() {
       success: "Note deleted!",
       error: "Failed to delete note",
     });
-    if (params.documentId === documentId) {
-      router.push("/documents");
+    if (currentNoteId === documentId) {
+      dispatch(setCurrentNoteId(null))
     }
   };
 
