@@ -20,9 +20,9 @@ export default defineSchema({
     title: v.string(),
     createdBy: v.string(),
     projectId: v.string(),
-    document: v.string(),
-    whiteboard: v.string(),
-    lastEdited: v.number(),
+    document: v.optional(v.string()),
+    whiteboard: v.optional(v.string()),
+    lastEdited: v.optional(v.number()),
     isArchived: v.boolean(),
   }).index("by_projectId", ["projectId"]),
 });

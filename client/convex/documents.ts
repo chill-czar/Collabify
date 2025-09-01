@@ -20,9 +20,6 @@ export const archive = mutation({
       throw new Error("Not found");
     }
 
-    if (existingDocument.userId !== userId) {
-      throw new Error("Unauthorized");
-    }
 
     const recursiveArchive = async (documentId: Id<"documents">) => {
       const children = await context.db
@@ -142,10 +139,6 @@ export const restore = mutation({
       throw new Error("Not found");
     }
 
-    if (existingDocument.userId !== userId) {
-      throw new Error("Unauthorized");
-    }
-
     const recursiveRestore = async (documentId: Id<"documents">) => {
       const children = await context.db
         .query("documents")
@@ -199,9 +192,6 @@ export const remove = mutation({
       throw new Error("Not found");
     }
 
-    if (existingDocument.userId !== userId) {
-      throw new Error("Unauthorized");
-    }
 
     const document = await context.db.delete(args.id);
 
@@ -249,12 +239,6 @@ export const getById = query({
       throw new Error("Not authenticated");
     }
 
-    const userId = identity.subject;
-
-    if (document.userId !== userId) {
-      throw new Error("Unauthorized");
-    }
-
     return document;
   },
 });
@@ -285,10 +269,6 @@ export const update = mutation({
       throw new Error("Not found");
     }
 
-    if (existingDocument.userId !== userId) {
-      throw new Error("Unauthorized");
-    }
-
     const document = await context.db.patch(args.id, {
       ...rest,
     });
@@ -314,10 +294,6 @@ export const removeIcon = mutation({
       throw new Error("Not found");
     }
 
-    if (existingDocument.userId !== userId) {
-      throw new Error("Unauthorized");
-    }
-
     const document = await context.db.patch(args.id, {
       icon: undefined,
     });
@@ -341,10 +317,6 @@ export const removeCoverImage = mutation({
 
     if (!existingDocument) {
       throw new Error("Not found");
-    }
-
-    if (existingDocument.userId !== userId) {
-      throw new Error("Unauthorized");
     }
 
     const document = await context.db.patch(args.id, {

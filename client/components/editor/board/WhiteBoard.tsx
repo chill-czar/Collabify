@@ -1,8 +1,9 @@
 import React from 'react'
+import { WhiteboardLayout } from './WhiteBoardLayout'
 
 const WhiteBoard = () => {
   return (
-    <div>WhiteBoard</div>
+    <WhiteboardLayout />
   )
 }
 
