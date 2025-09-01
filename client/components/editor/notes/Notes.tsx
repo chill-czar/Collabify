@@ -1,7 +1,7 @@
 "use client";
 
 import { useConvexAuth, useMutation, useQuery } from "convex/react";
-import React, { useEffect, useMemo } from "react";
+import React, { useMemo } from "react";
 import { Spinner } from "../../spinner";
 import { useSelector } from "react-redux";
 import { RootState } from "@/lib/store";

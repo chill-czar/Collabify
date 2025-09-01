@@ -1,29 +1,41 @@
-// components/whiteboard/Canvas.tsx
 "use client";
+import React, { useEffect, useState } from "react";
+import dynamic from "next/dynamic";
+import "@excalidraw/excalidraw/index.css";
 
-import React from "react";
-import { Card } from "@/components/ui/card";
-import { Palette } from "lucide-react";
+// Dynamically import Excalidraw components (no SSR)
+const Excalidraw = dynamic(
+  async () => (await import("@excalidraw/excalidraw")).Excalidraw,
+  { ssr: false }
+);
 
-export const Canvas: React.FC = () => {
+const Canvas = ({
+  onSaveTrigger,
+  fileId,
+  fileData,
+}: {
+  onSaveTrigger: (content: string) => void;
+  fileId: any;
+  fileData: string;
+}) => {
   return (
-    <div className="h-full flex flex-col">
-      <Card className="flex-1 m-4 flex items-center justify-center bg-gray-50 overflow-hidden">
-        <div className="text-center space-y-4">
-          <div className="w-16 h-16 bg-purple-100 rounded-full flex items-center justify-center mx-auto">
-            <Palette className="h-8 w-8 text-purple-600" />
-          </div>
-          <div>
-            <h3 className="font-medium text-gray-900 mb-2">
-              Whiteboard Canvas
-            </h3>
-            <p className="text-sm text-gray-500 max-w-xs">
-              Interactive whiteboard canvas will be integrated here. Drawing,
-              shapes, and collaboration tools.
-            </p>
-          </div>
-        </div>
-      </Card>
+    <div className="h-full w-full">
+      <Excalidraw
+        theme="light"
+        initialData={fileData ? { elements: JSON.parse(fileData) } : undefined}
+        UIOptions={{
+          canvasActions: {
+            export: false,
+            loadScene: false,
+            saveAsImage: false,
+          },
+        }}
+        onChange={(elements, appState, files) => {
+          onSaveTrigger(JSON.stringify(elements));
+        }}
+      ></Excalidraw>
     </div>
   );
 };
+
+export default Canvas;

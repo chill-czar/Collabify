@@ -21,8 +21,9 @@ export const createBoard = mutation({
       title: args.title,
       createdBy: userId,
       projectId: args.projectId,
-        isArchived: false,
-      lastEdited: Date.now()
+      isArchived: false,
+      lastEdited: Date.now(),
+      document: ""
     });
 
     return board;

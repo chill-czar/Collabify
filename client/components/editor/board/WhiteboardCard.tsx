@@ -1,4 +1,3 @@
-// components/whiteboard/WhiteboardCard.tsx
 "use client";
 
 import React from "react";
@@ -123,13 +122,13 @@ export const WhiteboardCard: React.FC<WhiteboardCardProps> = ({
             <DropdownMenuTrigger asChild>
               <button
                 data-dropdown-trigger
-                className="opacity-0 group-hover:opacity-100 transition-opacity p-1 hover:bg-gray-200 rounded-sm flex-shrink-0"
+                className="opacity-0 group-hover:opacity-100 transition-opacity p-1 hover:bg-gray-200 rounded-sm flex-shrink-0 absolute right-3 bottom-2"
                 onClick={(e) => {
                   e.stopPropagation();
                   setIsContextMenuOpen(true);
                 }}
               >
-                <MoreVertical className="h-4 w-4 text-gray-500" />
+                <MoreVertical className="h-5 w-5 text-gray-500" />
               </button>
             </DropdownMenuTrigger>
           </div>
