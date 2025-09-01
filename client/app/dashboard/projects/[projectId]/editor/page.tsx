@@ -10,7 +10,7 @@ import {
   MessageSquare,
 } from "lucide-react";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
-import WhiteBoard from "@/components/editor/WhiteBoard";
+import WhiteBoard from "@/components/editor/board/WhiteBoard";
 import VideoCall from "@/components/editor/VideoCall";
 import Files from "@/components/editor/files/Files";
 import { useDispatch, useSelector } from "react-redux";
