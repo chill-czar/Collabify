@@ -16,4 +16,13 @@ export default defineSchema({
     .index("by_user", ["userId"])
     .index("by_user_parent", ["userId", "parentDocument"])
     .index("by_project", ["projectId", "parentDocument"]),
+  board: defineTable({
+    title: v.string(),
+    createdBy: v.string(),
+    projectId: v.string(),
+    document: v.string(),
+    whiteboard: v.string(),
+    lastEdited: v.number(),
+    isArchived: v.boolean(),
+  }).index("by_projectId", ["projectId"]),
 });

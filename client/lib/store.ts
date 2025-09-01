@@ -6,6 +6,7 @@ import sidebarReducer from "@/lib/slices/sidebarSlice";
 import headerReducer from "@/lib/slices/headerSlice"
 import tabsReducer from "@/lib/slices/tabSlice"
 import currentNoteIdReducer from "./slices/currentNoteIdSlice";
+import currentBoardReducer from "./slices/currentBoardId";
 
 export const store = configureStore({
   reducer: {
@@ -16,6 +17,7 @@ export const store = configureStore({
     headerSlice: headerReducer,
     tabs: tabsReducer,
     currentNoteId: currentNoteIdReducer,
+    currentBoard: currentBoardReducer,
   },
 });
 
