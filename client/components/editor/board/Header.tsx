@@ -11,7 +11,8 @@ import {
   Palette,
   SplitSquareHorizontal,
 } from "lucide-react";
-import { ViewMode, Whiteboard } from "@/app/types/whiteboard";
+import { ViewMode } from "@/app/types/whiteboard";
+import { Title } from "./Title";
 
 interface HeaderProps {
   viewMode: ViewMode;
@@ -19,7 +20,7 @@ interface HeaderProps {
   onToggleSidebar: () => void;
   onToggleMobileSidebar: () => void;
   isSidebarCollapsed: boolean;
-  selectedWhiteboard?: Whiteboard;
+  initialTitle: string;
 }
 
 export const Header: React.FC<HeaderProps> = ({
@@ -28,7 +29,7 @@ export const Header: React.FC<HeaderProps> = ({
   onToggleSidebar,
   onToggleMobileSidebar,
   isSidebarCollapsed,
-  selectedWhiteboard,
+  initialTitle,
 }) => {
   return (
     <header className="h-14 bg-white border-b border-gray-200 flex items-center justify-between px-4">
@@ -58,9 +59,7 @@ export const Header: React.FC<HeaderProps> = ({
         </Button>
 
         {/* Current whiteboard title */}
-        <div className="font-medium text-gray-900">
-          {selectedWhiteboard?.title || "Select a whiteboard"}
-        </div>
+        <Title initialTitle={initialTitle} />
       </div>
 
       {/* View Mode Toggle */}
@@ -68,7 +67,6 @@ export const Header: React.FC<HeaderProps> = ({
         <Button
           variant={viewMode === "document" ? "default" : "ghost"}
           size="sm"
-          
           onClick={() => onViewModeChange("document")}
           className="flex items-center gap-2 h-8"
         >

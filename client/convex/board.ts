@@ -50,7 +50,21 @@ export const getProjectBoard = query({
     return boards;
   },
 });
+export const getBoardById = query({
+  args: { currentBoardId: v.id("board") },
+  handler: async (context, args) => {
+    const identity = await context.auth.getUserIdentity();
 
+    const document = await context.db.get(args.currentBoardId);
+    if (!document) {
+      throw new Error("Not found");
+    }
+    if (!identity) {
+      throw new Error("Not authenticated");
+    }
+    return document;
+  },
+});
 export const updateBoard = mutation({
   args: {
     id: v.id("board"),
