@@ -1,5 +1,5 @@
 import React from "react";
-import { Notification } from "@/app/types/notifications";
+import { Notification } from "@/types/notifications";
 import NotificationItem from "./NotificationItem";
 import EmptyState from "./EmptyState";
 

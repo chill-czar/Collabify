@@ -6,7 +6,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { X, Plus } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { WhiteboardCard } from "./WhiteboardCard";
-import { Whiteboard } from "@/app/types/whiteboard";
+import { Whiteboard } from "@/types/whiteboard";
 import { toast } from "sonner";
 import { useMutation, useQuery } from "convex/react";
 import { api } from "@/convex/_generated/api";

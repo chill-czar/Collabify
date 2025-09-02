@@ -5,7 +5,7 @@ import { Header } from "./Header";
 import { Sidebar } from "./Sidebar";
 
 import Canvas from "./Canvas";
-import { ViewMode } from "@/app/types/whiteboard";
+import { ViewMode } from "@/types/whiteboard";
 import { useConvexAuth, useMutation, useQuery } from "convex/react";
 import { api } from "@/convex/_generated/api";
 import { useSelector } from "react-redux";

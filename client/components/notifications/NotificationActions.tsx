@@ -1,6 +1,6 @@
 import React, { useState, MouseEvent } from "react";
 import { Check, X } from "lucide-react";
-import { InviteNotification } from "@/app/types/notifications";
+import { InviteNotification } from "@/types/notifications";
 import { acceptInvite, declineInvite } from "@/lib/notifications/api";
 
 interface NotificationActionsProps {

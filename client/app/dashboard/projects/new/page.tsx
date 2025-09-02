@@ -12,6 +12,7 @@ import {
   Loader2,
 } from "lucide-react";
 import api from "@/lib/axios";
+import { useRouter } from "next/navigation";
 
 interface FormData {
   name: string;
@@ -54,7 +55,8 @@ const ProjectCreationForm: React.FC = () => {
   const [suggestions, setSuggestions] = useState<string[]>([]);
   const [showDropdown, setShowDropdown] = useState(false);
   const [isSearching, setIsSearching] = useState(false);
-
+ 
+  const router = useRouter()
 
   const colorOptions = [
     "#4ade80", // green
@@ -294,7 +296,7 @@ const ProjectCreationForm: React.FC = () => {
       // Simulate API call - replace with actual API endpoint
       await new Promise((resolve) => setTimeout(resolve, 2000));
       // In real implementation, replace with:
-      await api.post("/projects/new", {
+    const res =   await api.post("/projects/new", {
         name,
         description,
         members,
@@ -305,9 +307,10 @@ const ProjectCreationForm: React.FC = () => {
         tags,
         color,
       });
-
+ 
       resetForm();
-      alert("Project created successfully!");
+      router.push(`/dashboard/projects/${res.data.project.id}`)
+      
     } catch (error: any) {
       setErrors((prev) => ({
         ...prev,

@@ -6,7 +6,7 @@ import {
   MessageNotification,
   UpdateNotification,
   BaseNotification,
-} from "@/app/types/notifications";
+} from "@/types/notifications";
 import { getRelativeTime } from "@/lib/notifications/utils";
 import NotificationActions from "./NotificationActions";
 

@@ -1,5 +1,5 @@
 import api from "@/lib/axios";
-import { Notification, ApiResponse, Invite } from "@/app/types/notifications";
+import { Notification, ApiResponse, Invite } from "@/types/notifications";
 
 // Mock data with proper typing
 export const mockNotifications: Notification[] = [

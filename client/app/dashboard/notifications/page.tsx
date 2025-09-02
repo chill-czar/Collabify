@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from "react";
 import { Filter, RotateCcw } from "lucide-react";
-import { Notification, FilterType } from "@/app/types/notifications";
+import { Notification, FilterType } from "@/types/notifications";
 import { fetchNotifications, markAsRead } from "@/lib/notifications/api";
 import NotificationList from "@/components/notifications/NotificationList";
 

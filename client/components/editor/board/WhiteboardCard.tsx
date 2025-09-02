@@ -10,7 +10,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { MoreVertical, Copy, Share, Trash2 } from "lucide-react";
-import { Whiteboard } from "@/app/types/whiteboard";
+import { Whiteboard } from "@/types/whiteboard";
 import { useMutation } from "convex/react";
 import { api } from "@/convex/_generated/api";
 import { Id } from "@/convex/_generated/dataModel";

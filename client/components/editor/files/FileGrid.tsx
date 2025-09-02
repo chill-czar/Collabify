@@ -8,7 +8,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "@/lib/store";
 import { setCurrentFolderId } from "@/lib/slices/currentFolderIdSlice";
 import { enterFolder } from "@/lib/slices/breadcrumbSlice";
-import { LoaderOne } from "../../ui/loader";
+import { Spinner } from "@/components/spinner";
 
 interface FileGridProps {
   projectId: string;
@@ -56,8 +56,8 @@ export const FileGrid: React.FC<FileGridProps> = ({
 
   if (isLoading) {
     return (
-      <div className="w-full h-full flex items-cener justify-center bg-white">
-        <LoaderOne />
+      <div className="w-full h-full flex items-center justify-center bg-white">
+        <Spinner size="lg" />
       </div>
     );
   }
@@ -123,8 +123,8 @@ export const FileGrid: React.FC<FileGridProps> = ({
     const emptyStateType = searchQuery
       ? "search"
       : folderId
-      ? "folder"
-      : "files";
+        ? "folder"
+        : "files";
     return (
       <div className="w-full h-full min-h-[500px] bg-white">
         <div className="flex items-center justify-center p-8 sm:p-12">

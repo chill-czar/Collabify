@@ -42,7 +42,6 @@ const Sidebar = () => {
     { icon: FolderOpen, label: "Projects", href: "/dashboard/projects" },
     { icon: File, label: "Files", href: "/dashboard/files" },
     { icon: Video, label: "Rooms", href: "/dashboard/rooms" },
-    { icon: Search, label: "Search", href: "/dashboard/search" },
     { icon: Bell, label: "Notifications", href: "/dashboard/notifications" },
   ];
 

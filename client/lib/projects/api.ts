@@ -1,6 +1,6 @@
 // lib/projectsApi.ts
 import api from "@/lib/axios";
-import { Project, ApiResponse } from "@/app/types/project";
+import { Project, ApiResponse } from "@/types/project";
 
 // Mock data
 export const mockProjects: Project[] = [

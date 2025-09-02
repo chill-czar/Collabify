@@ -11,7 +11,7 @@ import {
   Palette,
   SplitSquareHorizontal,
 } from "lucide-react";
-import { ViewMode } from "@/app/types/whiteboard";
+import { ViewMode } from "@/types/whiteboard";
 import { Title } from "./Title";
 
 interface HeaderProps {

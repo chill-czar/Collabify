@@ -1,7 +1,7 @@
 // components/ProjectsGrid.tsx
 "use client";
 
-import { Project } from "@/app/types/project";
+import { Project } from "@/types/project";
 import { ProjectCard } from "./ProjectCard";
 import { EmptyState } from "./EmptyState";
 

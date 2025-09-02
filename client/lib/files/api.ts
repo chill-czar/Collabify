@@ -17,7 +17,7 @@ import {
   PatchFolderErrorResponse,
   DeleteFolderError,
   UploadFileRequest,
-} from "@/app/types/files";
+} from "@/types/files";
 import {
   useQuery,
   useMutation,

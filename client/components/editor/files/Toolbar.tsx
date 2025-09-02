@@ -9,7 +9,7 @@ import {
   AlertCircle,
   Loader2,
 } from "lucide-react";
-import type { CreateFolderRequest, UploadFileRequest } from "@/app/types/files";
+import type { CreateFolderRequest, UploadFileRequest } from "@/types/files";
 import { useUploadFile, useCreateFolder } from "@/lib/files/api";
 import { useSelector } from "react-redux";
 import { RootState } from "@/lib/store";

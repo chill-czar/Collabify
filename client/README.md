@@ -45,6 +45,9 @@ website landing page
 clean consistent shadcn uiux design
 complete working navigation in whole website 
 
+<!-- consisteny spinner loader everywhere  -->
+fix files loader 
+
 learn devops basiscs terms , tools , and explaning them 
 learn all the terms of system design 
 how will u solve the system design problems 
