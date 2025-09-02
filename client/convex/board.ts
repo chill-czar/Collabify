@@ -55,7 +55,6 @@ export const getBoardById = query({
   args: { currentBoardId: v.id("board") },
   handler: async (context, args) => {
     const identity = await context.auth.getUserIdentity();
-
     const document = await context.db.get(args.currentBoardId);
     if (!document) {
       throw new Error("Not found");

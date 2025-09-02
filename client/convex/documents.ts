@@ -84,8 +84,6 @@ export const create = mutation({
     if (!identity) {
       throw new Error("Not authenticated");
     }
-    console.log(args.projectId)
-
     const userId = identity.subject;
 
     const document = await context.db.insert("documents", {
