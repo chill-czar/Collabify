@@ -36,6 +36,7 @@ function Editor({ onChange, initialContent, editable }: EditorProps) {
         onChange={() => {
           onChange(JSON.stringify(editor.topLevelBlocks, null, 2));
         }}
+
       />
     </div>
   );

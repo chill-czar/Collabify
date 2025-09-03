@@ -92,16 +92,19 @@ export const WhiteboardLayout: React.FC = () => {
           {/* Document Editor */}
           {(viewMode === "document" || viewMode === "both") && (
             <div
-              className={`${viewMode === "both" ? "flex-1" : "w-full"} ${
-                viewMode === "both" ? "border-r border-gray-200" : ""
-              } min-h-0`}
+              className={`${
+                viewMode === "both" ? "flex-1" : "w-full"
+              } ${viewMode === "both" ? "border-r border-gray-200" : ""} flex flex-col min-h-0`}
             >
               {board ? (
-                <Editor
-                  onChange={onChange}
-                  initialContent={board.document}
-                  editable={true}
-                />
+                // Make the editor itself take full height and be scrollable
+                <div className="flex-1 min-h-0 overflow-y-auto">
+                  <Editor
+                    onChange={onChange}
+                    initialContent={board.document}
+                    editable={true}
+                  />
+                </div>
               ) : currentBoardId ? (
                 <div className="h-full w-full flex justify-center items-center">
                   <Spinner size="lg" />

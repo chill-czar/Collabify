@@ -8,19 +8,22 @@ import {
   Calendar1,
   KanbanSquare,
   MessageSquare,
+  Workflow,
 } from "lucide-react";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import WhiteBoard from "@/components/editor/board/WhiteBoard";
-import VideoCall from "@/components/editor/VideoCall";
+import VideoCall from "@/components/editor/meet/VideoCall";
 import Files from "@/components/editor/files/Files";
 import { useDispatch, useSelector } from "react-redux";
 import { hideHeader } from "@/lib/slices/headerSlice";
 import { closeSidebar } from "@/lib/slices/sidebarSlice";
 import { RootState } from "@/lib/slices/tabSlice";
 import { setActiveTab } from "@/lib/slices/tabSlice";
-import Calender from "@/components/editor/Calender";
 import NotesLayout from "@/components/editor/notes/NotesLayout";
 import Notes from "@/components/editor/notes/Notes";
+import FlowTab from "@/components/editor/flow/Flow";
+import SlackDashboard from "@/components/editor/chats/Chats";
+import WorkflowDashboard from "@/components/editor/workflow/Workflow";
 
 const Editor = () => {
   const dispatch = useDispatch();
@@ -45,9 +48,9 @@ const Editor = () => {
     },
     { name: "Board", icon: PenTool, content: <WhiteBoard /> },
     { name: "Meet", icon: Video, content: <VideoCall /> },
-    { name: "Flow", icon: KanbanSquare, content: <Calender /> },
-    { name: "Calender", icon: Calendar1, content: <Calender /> },
-    { name: "Chats", icon: MessageSquare, content: <Calender /> },
+    { name: "Flow", icon: KanbanSquare, content: <FlowTab /> },
+    { name: "WorkFlow", icon: Workflow, content: <WorkflowDashboard /> },
+    { name: "Chats", icon: MessageSquare, content: <SlackDashboard /> },
   ];
 
   return (

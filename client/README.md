@@ -26,29 +26,35 @@ projects -> redesign project page , real data , project navigation , redesign pr
 
 # landign page 
 hero section 
-logo cloud
-features-4
-intengTRION
-team
-testmonials
-cta
+logo cloud - which which comanies using us
+features - files , notes , whiteboard , 
+integration - like gmail , github , etc 
+team - deveoper of colllabify which is me only solo
+testmonials 
+cta 
 footer
-pricing
-comparatorn
-faq
+pricing 
+comparision - comparision with notion , excalidraw , trello , slack , zoom  
+faq 
 contact
 
 
 what what i need to prepare before pitching harsh bhaiyaa 
-website landing page 
 
-clean consistent shadcn uiux design
-complete working navigation in whole website 
+<!-- clean consistent shadcn uiux design -->
+<!-- complete working navigation in whole website  -->
 
 <!-- consisteny spinner loader everywhere  -->
-fix files loader 
+<!-- fix files loader  -->
 
-learn devops basiscs terms , tools , and explaning them 
-learn all the terms of system design 
-how will u solve the system design problems 
 list and sideby side comparision of currently implemented fearure and total feature i will implement
+prepare what feature will add more than existed ? what more that excalidraw , notion , zoom , trello , loom ? 
+
+
+what i have to do there ? what i have to achive there in the meeting ? 
+explaining my project 
+explaining current features and futures i will implement in website 
+if they launch thiss saas product , when harsh bhaiyaa say yes to they will launch this startup then 
+heres the pitch 100% product ownership and revenue is urs what i need is job 
+
+
