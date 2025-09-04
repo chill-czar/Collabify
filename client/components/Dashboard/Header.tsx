@@ -8,11 +8,12 @@ import { Input } from "@/components/ui/input";
 // import { useAppSelector } from "@/lib/slices/headerSlice"; // your Redux typed selector
 import { RootState } from "@/lib/store"; // adjust path to your store
 import { useSelector } from "react-redux";
+import { useRouter } from "next/navigation";
 
 const Header = () => {
   const [searchValue, setSearchValue] = useState("");
   const isVisible = useSelector((state: RootState) => state.headerSlice.visible);
-
+ const router = useRouter()
   if (!isVisible) return null; // hide header when slice sets visible = false
 
   return (
@@ -35,7 +36,8 @@ const Header = () => {
         {/* Right Side Actions */}
         <div className="flex items-center space-x-1 sm:space-x-3 ml-3 sm:ml-6">
           {/* Create Button */}
-          <Button className="flex items-center space-x-2 bg-black text-white hover:bg-gray-800">
+          <Button className="flex items-center space-x-2 bg-black text-white hover:bg-gray-800"
+          onClick={()=> router.push("/dashboard/projects/new")}>
             <Plus className="w-4 h-4" />
             <span className="hidden sm:inline">Create</span>
           </Button>

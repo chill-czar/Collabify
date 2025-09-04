@@ -29,6 +29,7 @@ import { UserItem } from "../Dashboard/UserItem";
 import { useUser } from "@clerk/nextjs";
 import { Avatar } from "./avatar";
 import { AvatarImage } from "@radix-ui/react-avatar";
+import { useRouter } from "next/navigation";
 
 const Sidebar = () => {
   const dispatch = useDispatch();
@@ -50,7 +51,7 @@ const Sidebar = () => {
     { icon: CreditCard, label: "Billing", href: "/billing" },
     { icon: Users, label: "Team", href: "/team" },
   ];
-
+const router = useRouter()
   const SidebarContent = ({
     collapsed = false,
     onItemClick = () => {},
@@ -79,7 +80,7 @@ const Sidebar = () => {
         <div className="p-4">
           <Button
             className="w-full justify-start space-x-2"
-            onClick={onItemClick}
+            onClick={()=> router.push("/dashboard/projects/new")}
             size={collapsed ? "icon" : "default"}
           >
             <Plus className="h-4 w-4" />

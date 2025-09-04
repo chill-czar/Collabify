@@ -47,10 +47,10 @@ const Editor = () => {
       ),
     },
     { name: "Board", icon: PenTool, content: <WhiteBoard /> },
-    { name: "Meet", icon: Video, content: <VideoCall /> },
-    { name: "Flow", icon: KanbanSquare, content: <FlowTab /> },
-    { name: "WorkFlow", icon: Workflow, content: <WorkflowDashboard /> },
-    { name: "Chats", icon: MessageSquare, content: <SlackDashboard /> },
+    // { name: "Meet", icon: Video, content: <VideoCall /> },
+    // { name: "Flow", icon: KanbanSquare, content: <FlowTab /> },
+    // { name: "WorkFlow", icon: Workflow, content: <WorkflowDashboard /> },
+    // { name: "Chats", icon: MessageSquare, content: <SlackDashboard /> },
   ];
 
   return (

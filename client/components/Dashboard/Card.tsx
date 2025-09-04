@@ -1,38 +1,46 @@
+"use client";
+
 import { FolderOpen, FileText, Users, Zap } from "lucide-react";
+import { useQuery } from "@tanstack/react-query";
+import { fetchProjects } from "@/lib/projects/api";
+import { listFiles } from "@/lib/files/api";
 
 export default function DashboardCards() {
+  // ✅ Fetch projects
+  const { data: projects = [], isLoading: projectsLoading } = useQuery({
+    queryKey: ["projects"],
+    queryFn: fetchProjects,
+  });
+
+  // ✅ Fetch files (loop through projects)
+  const { data: files = [], isLoading: filesLoading } = useQuery({
+    queryKey: ["files", projects.map((p) => p.id)],
+    queryFn: async () => {
+      if (!projects.length) return [];
+      const allFiles = await Promise.all(
+        projects.map((project) => listFiles({ projectId: project.id }))
+      );
+      return allFiles.flat();
+    },
+    enabled: projects.length > 0, // only fetch when projects loaded
+  });
+
   const cards = [
     {
       title: "Total Projects",
-      value: "12",
-      subtitle: "3 active this week",
+      value: projectsLoading ? "…" : projects.length.toString(),
+      subtitle: "Projects you’re working on",
       icon: FolderOpen,
       iconColor: "text-blue-500",
       iconBg: "bg-blue-50",
     },
     {
       title: "Files Uploaded",
-      value: "248",
-      subtitle: "15 uploaded today",
+      value: filesLoading ? "…" : files.length.toString(),
+      subtitle: "Across all projects",
       icon: FileText,
       iconColor: "text-green-500",
       iconBg: "bg-green-50",
-    },
-    {
-      title: "Team Members",
-      value: "8",
-      subtitle: "2 joined this month",
-      icon: Users,
-      iconColor: "text-purple-500",
-      iconBg: "bg-purple-50",
-    },
-    {
-      title: "Active Rooms",
-      value: "3",
-      subtitle: "1 room in progress",
-      icon: Zap,
-      iconColor: "text-orange-500",
-      iconBg: "bg-orange-50",
     },
   ];
 

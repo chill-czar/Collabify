@@ -4,7 +4,7 @@
 import { useState, useEffect, useMemo } from "react";
 import { Plus, AlertCircle, RefreshCw } from "lucide-react";
 import { Project, FilterState } from "@/types/project";
-import { fetchProjects, mockProjects } from "@/lib/projects/api";
+import { fetchProjects } from "@/lib/projects/api";
 import { FilterBar } from "@/components/projects/FilterBar";
 import { ProjectsGrid } from "@/components/projects/ProjectsGrid";
 import { Spinner } from "@/components/spinner";
