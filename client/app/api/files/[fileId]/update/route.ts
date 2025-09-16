@@ -160,7 +160,6 @@ export async function PATCH(
       return errorResponse(401, "Unauthorized: user not authenticated");
     }
     const clerkId = clerkUser.id;
-    // const clerkId = "user_31TGF6kLrmgc5ZuCxiAp8ywbUbU";
 
     // Map clerkId -> User.id in our DB
     const user = await prisma.user.findUnique({

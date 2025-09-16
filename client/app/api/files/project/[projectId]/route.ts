@@ -33,7 +33,6 @@ export async function GET(
     if (!clerkUser)
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     const clerkId = clerkUser.id;
-    // const clerkId = "user_31TGF6kLrmgc5ZuCxiAp8ywbUbU";
     if (!clerkId) {
       return NextResponse.json(
         { success: false, error: "Unauthorized" },
