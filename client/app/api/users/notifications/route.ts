@@ -49,7 +49,7 @@ export async function GET(req: NextRequest) {
     });
 
     // Normalize the response
-    const formattedNotifications = notifications.map((n) => ({
+    const formattedNotifications = notifications.map((n: any) => ({
       id: n.id,
       type: n.type,
       content: n.content,

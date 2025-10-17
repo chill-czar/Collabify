@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
 import { currentUser } from "@clerk/nextjs/server";
 import prisma from "@/lib/prisma";
-import { Prisma } from "@prisma/client";
+import { PrismaClientKnownRequestError } from "@prisma/client/runtime/library";
 
 
 
@@ -97,9 +97,10 @@ async function checkAuthorization({
   file,
 }: {
   userId: string;
-  file: Prisma.FileGetPayload<{
-    select: { projectId: true; uploadedBy: true };
-  }>;
+  file: {
+    projectId: string;
+    uploadedBy: string;
+  };
 }) {
   // If uploader, allow
   if (file.uploadedBy === userId) return { allowed: true, reason: "uploader" };
@@ -247,7 +248,7 @@ export async function PATCH(
 
     // Compute update object: only include changed fields
     // Build update object: only include changed fields
-    const updateData: Prisma.FileUpdateInput = {};
+    const updateData: any = {};
 
     if (body.fileName !== undefined && body.fileName !== null) {
       const sanitized = sanitizeFileName(body.fileName);
@@ -312,7 +313,7 @@ export async function PATCH(
     }
 
     // Transaction: update and optionally log audit record (commented placeholder)
-    const updatedFile = await prisma.$transaction(async (tx) => {
+    const updatedFile = await prisma.$transaction(async (tx: any) => {
       const result = await tx.file.update({
         where: { id: fileId },
         data: updateData,
@@ -370,7 +371,7 @@ export async function PATCH(
     console.error("PATCH /api/files/:fileId error:", err);
 
     // Prisma known errors handling (basic)
-    if (err instanceof Prisma.PrismaClientKnownRequestError) {
+    if (err instanceof PrismaClientKnownRequestError) {
       // e.g., foreign key constraint, invalid input
       return errorResponse(400, "Database error", {
         code: err.code,

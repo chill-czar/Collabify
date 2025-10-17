@@ -355,7 +355,7 @@ export async function DELETE(
     // NOTE: cascading deletions configured in Prisma schema (onDelete: Cascade) will apply.
     // We explicitly delete related objects for clarity/explicitness so we can control ordering.
     try {
-      await prisma.$transaction(async (tx) => {
+      await prisma.$transaction(async (tx: any) => {
         // Delete file access entries
         await tx.fileAccess.deleteMany({ where: { fileId: fileId } });
 

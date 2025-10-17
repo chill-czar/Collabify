@@ -62,7 +62,7 @@ async function collectFolderTreeIds(rootFolderId: string) {
       where: { parentFolderId: { in: batch } },
       select: { id: true },
     });
-    const childIds = children.map((c) => c.id);
+    const childIds = children.map((c: any) => c.id);
     if (childIds.length) {
       all.push(...childIds);
       queue.push(...childIds);

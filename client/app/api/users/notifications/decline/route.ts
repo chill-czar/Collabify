@@ -44,7 +44,7 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: "Invite expired" }, { status: 400 });
 
     // 4️⃣ Transaction: decline invite
-    await prisma.$transaction(async (tx) => {
+    await prisma.$transaction(async (tx: any) => {
       // a) Update invite status
       await tx.projectInvite.update({
         where: { id: inviteId },

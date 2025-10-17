@@ -32,7 +32,7 @@ export async function GET() {
     });
 
     // Map projects to response shape
-    const formatted = projects.map((p) => ({
+    const formatted = projects.map((p: any) => ({
       id: p.id,
       name: p.name,
       description: p.description || undefined,

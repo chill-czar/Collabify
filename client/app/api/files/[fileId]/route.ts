@@ -156,7 +156,7 @@ export async function GET(
       where: { projectId: file.projectId, userId: user.id },
     });
     const hasExplicitAccess = file.accessUsers.some(
-      (au) => au.userId === user.id
+      (au: any) => au.userId === user.id
     );
 
     const canAccess =
@@ -213,17 +213,17 @@ export async function GET(
             version: file.parentFile.version,
           }
         : undefined,
-      versions: file.versions.map((v) => ({
+      versions: file.versions.map((v: any) => ({
         id: v.id,
         version: v.version,
         createdAt: v.createdAt.toISOString(),
       })),
-      accessUsers: file.accessUsers.map((au) => ({
+      accessUsers: file.accessUsers.map((au: any) => ({
         id: au.id,
         userId: au.userId,
         permission: au.permission.toString(),
       })),
-      shareLinks: file.shareLinks.map((sl) => ({
+      shareLinks: file.shareLinks.map((sl: any) => ({
         id: sl.id,
         shareToken: sl.shareToken,
         permission: sl.permission.toString(),

@@ -21,7 +21,7 @@ export async function POST(
       return NextResponse.json(
         { error: "Missing notification ID" },
         { status: 400 }
-      );''
+      );
     }
     const notificationId = params.id; // ✅ correct now
 
