@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { currentUser } from "@clerk/nextjs/server";
-import { FileCategory, PrismaClient } from "@prisma/client";
+import { PrismaClient } from "@prisma/client";
 import { PutObjectCommand, S3Client } from "@aws-sdk/client-s3";
 import { ObjectId } from "mongodb";
 
@@ -49,12 +49,12 @@ export async function POST(req: Request) {
     );
 
     // Validate category
-    const validCategories = Object.values(FileCategory);
-    if (!validCategories.includes(category?.toUpperCase() as FileCategory)) {
-      category = FileCategory.OTHER;
+    const validCategories = ["DOCUMENT", "IMAGE", "VIDEO", "AUDIO", "CODE", "DESIGN", "ARCHIVE", "SPREADSHEET", "OTHER"];
+    if (!validCategories.includes(category?.toUpperCase())) {
+      category = "OTHER";
     }
-    const categoryEnum: FileCategory =
-      (category?.toUpperCase() as FileCategory) || FileCategory.OTHER;
+    const categoryEnum =
+      (category?.toUpperCase() as any) || "OTHER";
 
     // Lookup user
     const user = await prisma.user.findUnique({

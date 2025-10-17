@@ -101,7 +101,7 @@ export async function GET(
     // ------------------------
     const isProjectMember =
       folder.project.createdBy === user.id ||
-      folder.project.members.some((m) => m.userId === user.id);
+      folder.project.members.some((m: any) => m.userId === user.id);
 
     if (!isProjectMember) {
       return NextResponse.json({ error: "Forbidden" }, { status: 403 });
@@ -121,7 +121,7 @@ export async function GET(
     });
 
     const files: FileResponse[] = await Promise.all(
-      fileRecords.map(async (f) => {
+      fileRecords.map(async (f: any) => {
         let presignedUrl: string | undefined;
         try {
           presignedUrl = await getPresignedUrl(f.fileUrl);
@@ -140,7 +140,7 @@ export async function GET(
       select: { id: true, name: true },
     });
 
-    const subfolders = subfolderRecords.map((sf) => ({
+    const subfolders = subfolderRecords.map((sf: any) => ({
       id: sf.id,
       name: sf.name,
     }));

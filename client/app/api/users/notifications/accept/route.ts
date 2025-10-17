@@ -42,7 +42,7 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: "Invite expired" }, { status: 400 });
 
     // 2️⃣ Transaction: accept invite
-    const result = await prisma.$transaction(async (tx) => {
+    const result = await prisma.$transaction(async (tx: any) => {
       // a) Create ProjectMember
       const member = await tx.projectMember.create({
         data: {
