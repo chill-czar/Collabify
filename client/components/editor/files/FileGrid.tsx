@@ -19,6 +19,9 @@ interface FileGridProps {
   onUpload?: () => void;
   onCreateFolder?: () => void;
   searchQuery?: string;
+  isUploading?: boolean;
+  isUploadSuccess?: boolean;
+  isUploadError?: boolean;
 }
 
 export const FileGrid: React.FC<FileGridProps> = ({
@@ -30,6 +33,9 @@ export const FileGrid: React.FC<FileGridProps> = ({
   onUpload,
   onCreateFolder,
   searchQuery,
+  isUploading = false,
+  isUploadSuccess = false,
+  isUploadError = false,
 }) => {
   const dispatch = useDispatch();
   const currentFolderId = useSelector(
@@ -133,6 +139,9 @@ export const FileGrid: React.FC<FileGridProps> = ({
             onUploadClick={onUpload}
             onCreateFolderClick={onCreateFolder}
             showActions={!searchQuery}
+            isUploading={isUploading}
+            isUploadSuccess={isUploadSuccess}
+            isUploadError={isUploadError}
           />
         </div>
       </div>

@@ -40,6 +40,7 @@ export const FileManagerDemo: React.FC<FileManagerDemoProps> = ({
     folderName,
     setFolderName,
     fileInputRef,
+    uploadMutation,
     isFolderLoading,
     isFolderSuccess,
     isFolderError,
@@ -76,6 +77,9 @@ export const FileManagerDemo: React.FC<FileManagerDemoProps> = ({
             onUpload={handleUploadClick}
             onCreateFolder={openCreateFolderModal}
             searchQuery={searchQuery}
+            isUploading={uploadMutation.isPending}
+            isUploadSuccess={uploadMutation.isSuccess}
+            isUploadError={uploadMutation.isError}
           />
         </div>
 
