@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useRef, useState, useEffect } from "react";
+import React from "react";
 import {
   Upload,
   FolderPlus,
@@ -9,10 +9,7 @@ import {
   AlertCircle,
   Loader2,
 } from "lucide-react";
-import type { CreateFolderRequest, UploadFileRequest } from "@/types/files";
-import { useUploadFile, useCreateFolder } from "@/lib/files/api";
-import { useSelector } from "react-redux";
-import { RootState } from "@/lib/store";
+import { useFileOperations } from "@/hooks/useFileOperations";
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -31,102 +28,21 @@ export type ToolbarProps = {
 };
 
 const Toolbar: React.FC<ToolbarProps> = ({ projectId }) => {
-  const parentFolderId = useSelector(
-    (state: RootState) => state.breadCrumb.currentFolderId
-  );
-
-  // State
-  const [showCreateFolderModal, setShowCreateFolderModal] = useState(false);
-  const [folderName, setFolderName] = useState("");
-  const fileInputRef = useRef<HTMLInputElement>(null);
-
-  // Optional metadata
-  const [category] = useState<string>("OTHER");
-  const [description] = useState<string | null>(null);
-
-  // Upload mutation
-  const uploadMutation = useUploadFile(projectId, parentFolderId);
-
-  // Folder creation mutation
   const {
-    mutate: createFolder,
-    isPending: isFolderLoading,
-    isSuccess: isFolderSuccess,
-    isError: isFolderError,
-    reset: resetFolder,
-  } = useCreateFolder(projectId, parentFolderId);
-
-  // Trigger hidden file input
-  const handleUploadClick = () => fileInputRef.current?.click();
-
-  // File upload
-  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
-
-    const payload: UploadFileRequest = {
-      file,
-      fileName: file.name,
-      projectId,
-      folderId: parentFolderId ?? null,
-      category,
-      description,
-      tags: [],
-    };
-
-    uploadMutation.mutate(payload, {
-      onSuccess: () => {
-        if (fileInputRef.current) fileInputRef.current.value = "";
-      },
-    });
-  };
-
-  // Folder creation
-  const handleCreateFolder = () => {
-    if (!folderName.trim()) return;
-    resetFolder();
-
-    const payload: CreateFolderRequest = {
-      projectId,
-      name: folderName.trim(),
-      parentFolderId,
-    };
-
-    createFolder(payload);
-  };
-
-  const handleCloseModal = () => {
-    setShowCreateFolderModal(false);
-    setFolderName("");
-    resetFolder();
-  };
-
-  // Auto close modal on success
-  useEffect(() => {
-    if (isFolderSuccess) {
-      setTimeout(handleCloseModal, 1500);
-    }
-  }, [isFolderSuccess]);
-
-  // Reset upload button state after showing success message
-  useEffect(() => {
-    if (uploadMutation.isSuccess) {
-      const timer = setTimeout(() => {
-        uploadMutation.reset();
-      }, 2000);
-      return () => clearTimeout(timer);
-    }
-  }, [uploadMutation.isSuccess]);
-
-  // Reset upload button state after showing error message
-  useEffect(() => {
-    if (uploadMutation.isError) {
-      const timer = setTimeout(() => {
-        uploadMutation.reset();
-      }, 3000);
-      return () => clearTimeout(timer);
-    }
-  }, [uploadMutation.isError]);
+    showCreateFolderModal,
+    folderName,
+    setFolderName,
+    fileInputRef,
+    uploadMutation,
+    isFolderLoading,
+    isFolderSuccess,
+    isFolderError,
+    handleUploadClick,
+    handleFileChange,
+    handleCreateFolder,
+    handleCloseModal,
+    openCreateFolderModal,
+  } = useFileOperations(projectId);
 
   return (
     <>
@@ -181,7 +97,7 @@ const Toolbar: React.FC<ToolbarProps> = ({ projectId }) => {
               {/* New Folder Button */}
               <Button
                 variant="outline"
-                onClick={() => setShowCreateFolderModal(true)}
+                onClick={openCreateFolderModal}
                 className="min-w-[120px] justify-center"
               >
                 <FolderPlus className="w-4 h-4" />
@@ -211,10 +127,7 @@ const Toolbar: React.FC<ToolbarProps> = ({ projectId }) => {
       />
 
       {/* Folder Dialog */}
-      <Dialog
-        open={showCreateFolderModal}
-        onOpenChange={setShowCreateFolderModal}
-      >
+      <Dialog open={showCreateFolderModal} onOpenChange={handleCloseModal}>
         <DialogContent>
           <DialogHeader>
             <DialogTitle>Create New Folder</DialogTitle>

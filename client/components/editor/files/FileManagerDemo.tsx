@@ -1,12 +1,9 @@
 // components/files/FileManagerDemo.tsx
-import React, { useState, useRef, useEffect } from "react";
+import React, { useState } from "react";
 import { FileGrid } from "./FileGrid";
 import { RightSidebar } from "./RightSidebar";
 import Breadcrumbs from "./Breadcrumbs";
-import { useUploadFile, useCreateFolder } from "@/lib/files/api";
-import { useSelector } from "react-redux";
-import { RootState } from "@/lib/store";
-import type { CreateFolderRequest, UploadFileRequest } from "@/types/files";
+import { useFileOperations } from "@/hooks/useFileOperations";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
@@ -37,31 +34,21 @@ export const FileManagerDemo: React.FC<FileManagerDemoProps> = ({
   );
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
-  // Folder modal state
-  const [showCreateFolderModal, setShowCreateFolderModal] = useState(false);
-  const [folderName, setFolderName] = useState("");
-  const fileInputRef = useRef<HTMLInputElement>(null);
-
-  // Get current folder from Redux
-  const parentFolderId = useSelector(
-    (state: RootState) => state.breadCrumb.currentFolderId
-  );
-
-  // Optional metadata
-  const [category] = useState<string>("OTHER");
-  const [description] = useState<string | null>(null);
-
-  // Upload mutation
-  const uploadMutation = useUploadFile(projectId, parentFolderId);
-
-  // Folder creation mutation
+  // Use the shared file operations hook
   const {
-    mutate: createFolder,
-    isPending: isFolderLoading,
-    isSuccess: isFolderSuccess,
-    isError: isFolderError,
-    reset: resetFolder,
-  } = useCreateFolder(projectId, parentFolderId);
+    showCreateFolderModal,
+    folderName,
+    setFolderName,
+    fileInputRef,
+    isFolderLoading,
+    isFolderSuccess,
+    isFolderError,
+    handleUploadClick,
+    handleFileChange,
+    handleCreateFolder,
+    handleCloseModal,
+    openCreateFolderModal,
+  } = useFileOperations(projectId);
 
   const handleItemSelect = (item: any, type: "file" | "folder") => {
     setSelectedItem(item);
@@ -75,62 +62,6 @@ export const FileManagerDemo: React.FC<FileManagerDemoProps> = ({
     setSelectedType(null);
   };
 
-  const handleUpload = () => {
-    fileInputRef.current?.click();
-  };
-
-  // File upload
-  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
-
-    const payload: UploadFileRequest = {
-      file,
-      fileName: file.name,
-      projectId,
-      folderId: parentFolderId ?? null,
-      category,
-      description,
-      tags: [],
-    };
-
-    uploadMutation.mutate(payload, {
-      onSuccess: () => {
-        if (fileInputRef.current) fileInputRef.current.value = "";
-      },
-    });
-  };
-
-  const handleCreateFolder = () => {
-    setShowCreateFolderModal(true);
-  };
-
-  const handleCreateFolderSubmit = () => {
-    if (!folderName.trim()) return;
-    resetFolder();
-
-    const payload: CreateFolderRequest = {
-      projectId,
-      name: folderName.trim(),
-      parentFolderId,
-    };
-
-    createFolder(payload);
-  };
-
-  const handleCloseModal = () => {
-    setShowCreateFolderModal(false);
-    setFolderName("");
-    resetFolder();
-  };
-
-  // Auto close modal on success
-  useEffect(() => {
-    if (isFolderSuccess) {
-      setTimeout(handleCloseModal, 1500);
-    }
-  }, [isFolderSuccess]);
-
   return (
     <>
       <div className="flex h-screen">
@@ -142,8 +73,8 @@ export const FileManagerDemo: React.FC<FileManagerDemoProps> = ({
             onItemSelect={handleItemSelect}
             selectedItem={selectedItem}
             selectedType={selectedType}
-            onUpload={handleUpload}
-            onCreateFolder={handleCreateFolder}
+            onUpload={handleUploadClick}
+            onCreateFolder={openCreateFolderModal}
             searchQuery={searchQuery}
           />
         </div>
@@ -168,10 +99,7 @@ export const FileManagerDemo: React.FC<FileManagerDemoProps> = ({
       />
 
       {/* Folder Dialog */}
-      <Dialog
-        open={showCreateFolderModal}
-        onOpenChange={setShowCreateFolderModal}
-      >
+      <Dialog open={showCreateFolderModal} onOpenChange={handleCloseModal}>
         <DialogContent>
           <DialogHeader>
             <DialogTitle>Create New Folder</DialogTitle>
@@ -185,7 +113,7 @@ export const FileManagerDemo: React.FC<FileManagerDemoProps> = ({
             onChange={(e) => setFolderName(e.target.value)}
             placeholder="Enter folder name..."
             onKeyDown={(e) => {
-              if (e.key === "Enter") handleCreateFolderSubmit();
+              if (e.key === "Enter") handleCreateFolder();
               if (e.key === "Escape") handleCloseModal();
             }}
             autoFocus
@@ -210,7 +138,7 @@ export const FileManagerDemo: React.FC<FileManagerDemoProps> = ({
 
           <DialogFooter>
             <Button
-              onClick={handleCreateFolderSubmit}
+              onClick={handleCreateFolder}
               disabled={
                 !folderName.trim() || isFolderLoading || isFolderSuccess
               }
