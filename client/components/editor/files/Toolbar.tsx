@@ -108,6 +108,26 @@ const Toolbar: React.FC<ToolbarProps> = ({ projectId }) => {
     }
   }, [isFolderSuccess]);
 
+  // Reset upload button state after showing success message
+  useEffect(() => {
+    if (uploadMutation.isSuccess) {
+      const timer = setTimeout(() => {
+        uploadMutation.reset();
+      }, 2000);
+      return () => clearTimeout(timer);
+    }
+  }, [uploadMutation.isSuccess]);
+
+  // Reset upload button state after showing error message
+  useEffect(() => {
+    if (uploadMutation.isError) {
+      const timer = setTimeout(() => {
+        uploadMutation.reset();
+      }, 3000);
+      return () => clearTimeout(timer);
+    }
+  }, [uploadMutation.isError]);
+
   return (
     <>
       {/* Toolbar */}
