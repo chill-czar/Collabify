@@ -1,6 +1,6 @@
 // components/files/EmptyState.tsx
 import React from "react";
-import { FileText, FolderPlus, Upload } from "lucide-react";
+import { FileText, FolderPlus, Upload, Check, AlertCircle, Loader2 } from "lucide-react";
 
 interface EmptyStateProps {
   type?: "files" | "search" | "folder";
@@ -9,6 +9,9 @@ interface EmptyStateProps {
   onUploadClick?: () => void;
   onCreateFolderClick?: () => void;
   showActions?: boolean;
+  isUploading?: boolean;
+  isUploadSuccess?: boolean;
+  isUploadError?: boolean;
 }
 
 export const EmptyState: React.FC<EmptyStateProps> = ({
@@ -18,6 +21,9 @@ export const EmptyState: React.FC<EmptyStateProps> = ({
   onUploadClick,
   onCreateFolderClick,
   showActions = true,
+  isUploading = false,
+  isUploadSuccess = false,
+  isUploadError = false,
 }) => {
   const getDefaultContent = () => {
     switch (type) {
@@ -75,10 +81,38 @@ export const EmptyState: React.FC<EmptyStateProps> = ({
         <div className="flex flex-col sm:flex-row gap-3 mt-8 w-full max-w-sm">
           <button
             onClick={onUploadClick}
-            className="flex-1 inline-flex items-center justify-center gap-2 px-4 py-2.5 bg-black text-white text-sm font-medium rounded-lg hover:bg-gray-800 active:bg-gray-900 transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-gray-900 focus:ring-offset-2"
+            disabled={isUploading}
+            className={`flex-1 inline-flex items-center justify-center gap-2 px-4 py-2.5 text-sm font-medium rounded-lg transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-gray-900 focus:ring-offset-2 ${
+              isUploading
+                ? "bg-gray-900 text-white cursor-not-allowed opacity-80"
+                : isUploadSuccess
+                ? "bg-green-600 hover:bg-green-700 text-white"
+                : isUploadError
+                ? "bg-red-600 hover:bg-red-700 text-white"
+                : "bg-black text-white hover:bg-gray-800 active:bg-gray-900"
+            }`}
           >
-            <Upload className="w-4 h-4" />
-            Upload Files
+            {isUploading ? (
+              <>
+                <Loader2 className="w-4 h-4 animate-spin" />
+                Uploading...
+              </>
+            ) : isUploadSuccess ? (
+              <>
+                <Check className="w-4 h-4" />
+                Uploaded!
+              </>
+            ) : isUploadError ? (
+              <>
+                <AlertCircle className="w-4 h-4" />
+                Failed
+              </>
+            ) : (
+              <>
+                <Upload className="w-4 h-4" />
+                Upload Files
+              </>
+            )}
           </button>
           <button
             onClick={onCreateFolderClick}
