@@ -61,6 +61,72 @@ api.interceptors.response.use(
   }
 );
 
+// Request batching utility for multi-file operations
+interface BatchRequest {
+  url: string;
+  method: "GET" | "POST" | "PATCH" | "DELETE";
+  body?: any;
+  params?: any;
+}
+
+interface BatchResponse<T> {
+  success: boolean;
+  data?: T;
+  error?: string;
+  index: number;
+}
+
+/**
+ * Batch multiple file requests into a single API call
+ * This reduces the number of HTTP requests for operations like bulk file updates or deletions
+ */
+export async function batchFileRequests<T = any>(
+  requests: BatchRequest[]
+): Promise<BatchResponse<T>[]> {
+  try {
+    // Send all requests to a batch endpoint
+    const res = await api.post<{ results: BatchResponse<T>[] }>("/batch", {
+      requests,
+    });
+    return res.data.results;
+  } catch (error) {
+    // If batch endpoint fails, fall back to individual requests
+    console.warn("Batch request failed, falling back to individual requests");
+    return Promise.all(
+      requests.map(async (req, index) => {
+        try {
+          let response;
+          switch (req.method) {
+            case "GET":
+              response = await api.get(req.url, { params: req.params });
+              break;
+            case "POST":
+              response = await api.post(req.url, req.body);
+              break;
+            case "PATCH":
+              response = await api.patch(req.url, req.body);
+              break;
+            case "DELETE":
+              response = await api.delete(req.url);
+              break;
+          }
+          return {
+            success: true,
+            data: response.data,
+            index,
+          };
+        } catch (err: any) {
+          return {
+            success: false,
+            error: err.message || "Request failed",
+            index,
+          };
+        }
+      })
+    );
+  }
+}
+
 export const apiClient = {
   get: async <T>(url: string, params?: any): Promise<T> => {
     const res = await api.get<T>(url, { params });
@@ -91,4 +157,7 @@ export const apiClient = {
     const res = await api.delete<T>(url);
     return res.data;
   },
+
+  // Export batch utility as part of apiClient
+  batch: batchFileRequests,
 };
