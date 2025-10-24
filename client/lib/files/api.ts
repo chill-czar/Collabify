@@ -27,6 +27,7 @@ import {
   UseMutationResult,
 } from "@tanstack/react-query";
 import { apiClient } from "../apiClient";
+import { STALE_TIME } from "@/providers/QueryProvider";
 
 // ==========================
 // API CLIENT FUNCTIONS
@@ -229,6 +230,7 @@ export const useFiles = (
   useQuery({
     queryKey: ["files", projectId, folderId ?? "root"],
     queryFn: () => listFiles({ projectId, folderId }),
+    staleTime: STALE_TIME.FILES,
     ...options,
   });
 
@@ -239,6 +241,7 @@ export const useFile = (
   useQuery({
     queryKey: ["files", fileId],
     queryFn: () => getFile(fileId),
+    staleTime: STALE_TIME.FILES,
     ...options,
   });
 
@@ -351,6 +354,7 @@ export const useFolder = (
   useQuery({
     queryKey: ["folders", folderId],
     queryFn: () => getFolder(folderId),
+    staleTime: STALE_TIME.FOLDERS,
     ...options,
   });
 
@@ -434,5 +438,6 @@ export const useFolderContents = (
   useQuery({
     queryKey: ["folders", folderId],
     queryFn: () => getFolder(folderId),
+    staleTime: STALE_TIME.FOLDERS,
     ...options,
   });
