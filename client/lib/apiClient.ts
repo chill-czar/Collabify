@@ -93,3 +93,76 @@ export const apiClient = {
     return res.data;
   },
 };
+
+/**
+ * Request batching utility for handling multiple file operations in a single call
+ * This reduces the number of round trips to the server and improves performance
+ */
+export interface BatchFileRequest {
+  fileId: string;
+  operation: "read" | "update" | "delete";
+  payload?: any;
+}
+
+export interface BatchFileResponse {
+  fileId: string;
+  success: boolean;
+  data?: any;
+  error?: string;
+}
+
+/**
+ * Batch multiple file requests into a single API call
+ * @param requests - Array of file requests to batch
+ * @returns Array of responses for each request
+ */
+export const batchFileRequests = async (
+  requests: BatchFileRequest[]
+): Promise<BatchFileResponse[]> => {
+  try {
+    const response = await apiClient.post<{ results: BatchFileResponse[] }>(
+      "/files/bulk",
+      { requests }
+    );
+    return response.results;
+  } catch (error) {
+    console.error("Batch file requests failed:", error);
+    throw error;
+  }
+};
+
+/**
+ * Helper function to batch file reads
+ */
+export const batchFileReads = async (fileIds: string[]) => {
+  const requests: BatchFileRequest[] = fileIds.map((fileId) => ({
+    fileId,
+    operation: "read",
+  }));
+  return batchFileRequests(requests);
+};
+
+/**
+ * Helper function to batch file updates
+ */
+export const batchFileUpdates = async (
+  updates: Array<{ fileId: string; payload: any }>
+) => {
+  const requests: BatchFileRequest[] = updates.map(({ fileId, payload }) => ({
+    fileId,
+    operation: "update",
+    payload,
+  }));
+  return batchFileRequests(requests);
+};
+
+/**
+ * Helper function to batch file deletes
+ */
+export const batchFileDeletes = async (fileIds: string[]) => {
+  const requests: BatchFileRequest[] = fileIds.map((fileId) => ({
+    fileId,
+    operation: "delete",
+  }));
+  return batchFileRequests(requests);
+};
