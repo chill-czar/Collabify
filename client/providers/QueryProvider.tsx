@@ -9,6 +9,8 @@ export default function QueryProvider({
 }: {
   children: React.ReactNode;
 }) {
+  // Create a new QueryClient instance per component render to avoid
+  // cache contamination across SSR requests
   const [queryClient] = useState(
     () =>
       new QueryClient({
