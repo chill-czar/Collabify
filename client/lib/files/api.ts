@@ -213,10 +213,17 @@ export const useUploadFile = (
 
   return useMutation<UploadFileResponse, Error, UploadFileRequest>({
     mutationFn: (payload: UploadFileRequest) => uploadFile(payload),
-    onSuccess: () => {
+    onSuccess: (data) => {
+      // Invalidate specific project/folder files query
       queryClient.invalidateQueries({
         queryKey: ["files", projectId, parentId ?? null],
       });
+      // Invalidate the specific folder if uploading inside one
+      if (parentId) {
+        queryClient.invalidateQueries({
+          queryKey: ["folders", parentId],
+        });
+      }
     },
   });
 };
@@ -243,6 +250,8 @@ export const useFile = (
   });
 
 export const useUpdateFile = (
+  projectId?: string,
+  folderId?: string | null,
   options?: UseMutationOptions<
     NonNullable<PatchFileUpdateResponse["data"]>,
     unknown,
@@ -261,19 +270,28 @@ export const useUpdateFile = (
     mutationFn: updateFile,
     onSuccess: (data) => {
       if (data?.id) {
+        // Invalidate specific file
         queryClient.invalidateQueries({
           queryKey: ["files", data.id],
         });
-        queryClient.invalidateQueries({
-          queryKey: ["files"],
-        });
+        // Invalidate specific project/folder list if known
+        if (projectId) {
+          queryClient.invalidateQueries({
+            queryKey: ["files", projectId, folderId ?? null],
+          });
+        } else {
+          // Fallback to broader invalidation
+          queryClient.invalidateQueries({
+            queryKey: ["files"],
+          });
+        }
       }
     },
     ...options,
   });
 };
 
-export const useDeleteFile = () => {
+export const useDeleteFile = (projectId?: string, folderId?: string | null) => {
   const queryClient = useQueryClient();
   return useMutation<
     { success: true; message: string },
@@ -282,8 +300,17 @@ export const useDeleteFile = () => {
   >({
     mutationFn: deleteFile,
     onSuccess: (_, fileId) => {
-      queryClient.invalidateQueries({ queryKey: ["files"] });
+      // Remove specific file from cache
       queryClient.removeQueries({ queryKey: ["files", fileId] });
+      // Invalidate specific project/folder list if known
+      if (projectId) {
+        queryClient.invalidateQueries({
+          queryKey: ["files", projectId, folderId ?? null],
+        });
+      } else {
+        // Fallback to broader invalidation
+        queryClient.invalidateQueries({ queryKey: ["files"] });
+      }
     },
   });
 };
@@ -334,7 +361,7 @@ export const useFolder = (
     ...options,
   });
 
-export const useUpdateFolder = () => {
+export const useUpdateFolder = (projectId?: string, parentFolderId?: string | null) => {
   const queryClient = useQueryClient();
   return useMutation<
     PatchFolderSuccessResponse["data"],
@@ -351,14 +378,26 @@ export const useUpdateFolder = () => {
     mutationFn: updateFolder,
     onSuccess: (data) => {
       if (data?.id) {
+        // Invalidate specific folder
         queryClient.invalidateQueries({ queryKey: ["folders", data.id] });
-        queryClient.invalidateQueries({ queryKey: ["files"] });
+        // Invalidate parent folder's contents
+        if (projectId) {
+          queryClient.invalidateQueries({
+            queryKey: ["folders", projectId, parentFolderId ?? null],
+          });
+          queryClient.invalidateQueries({
+            queryKey: ["files", projectId, parentFolderId ?? null],
+          });
+        } else {
+          // Fallback to broader invalidation
+          queryClient.invalidateQueries({ queryKey: ["files"] });
+        }
       }
     },
   });
 };
 
-export const useDeleteFolder = () => {
+export const useDeleteFolder = (projectId?: string, parentFolderId?: string | null) => {
   const queryClient = useQueryClient();
   return useMutation<
     DeleteFolderSuccess["data"],
@@ -366,9 +405,22 @@ export const useDeleteFolder = () => {
     { folderId: string; force?: boolean }
   >({
     mutationFn: ({ folderId, force }) => deleteFolder(folderId, force),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["folders"] });
-      queryClient.invalidateQueries({ queryKey: ["files"] });
+    onSuccess: (_, { folderId }) => {
+      // Remove specific folder from cache
+      queryClient.removeQueries({ queryKey: ["folders", folderId] });
+      // Invalidate parent folder's contents
+      if (projectId) {
+        queryClient.invalidateQueries({
+          queryKey: ["folders", projectId, parentFolderId ?? null],
+        });
+        queryClient.invalidateQueries({
+          queryKey: ["files", projectId, parentFolderId ?? null],
+        });
+      } else {
+        // Fallback to broader invalidation
+        queryClient.invalidateQueries({ queryKey: ["folders"] });
+        queryClient.invalidateQueries({ queryKey: ["files"] });
+      }
     },
   });
 };
