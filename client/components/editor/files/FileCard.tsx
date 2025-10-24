@@ -1,5 +1,5 @@
 // components/files/FileCard.tsx
-import React, { useState } from "react";
+import React, { useState, useCallback } from "react";
 import { MoreVertical } from "lucide-react";
 import { useDeleteFile, useUpdateFile } from "@/lib/files/api";
 import { Loading } from "@/components/editor/files/Loading";
@@ -44,25 +44,25 @@ const FileCardComponent: React.FC<FileCardProps> = ({
   const deleteFile = useDeleteFile();
   const updateFile = useUpdateFile();
 
-  const handleMenuClick = (e: React.MouseEvent) => {
+  const handleMenuClick = useCallback((e: React.MouseEvent) => {
     e.stopPropagation();
-    setShowMenu(!showMenu);
-  };
+    setShowMenu((prev) => !prev);
+  }, []);
 
-  const handleCardClick = () => {
+  const handleCardClick = useCallback(() => {
     onSelect?.(file);
-  };
+  }, [onSelect, file]);
 
-  const handleDelete = async () => {
+  const handleDelete = useCallback(async () => {
     try {
       await deleteFile.mutateAsync(file.id);
       setShowMenu(false);
     } catch (error) {
       console.error("Failed to delete file:", error);
     }
-  };
+  }, [deleteFile, file.id]);
 
-  const handleRename = async () => {
+  const handleRename = useCallback(async () => {
     if (newFileName.trim() && newFileName !== file.fileName) {
       try {
         await updateFile.mutateAsync({
@@ -77,33 +77,33 @@ const FileCardComponent: React.FC<FileCardProps> = ({
     } else {
       setIsRenaming(false);
     }
-  };
+  }, [newFileName, file.fileName, file.id, updateFile]);
 
-  const handleDownload = () => {
+  const handleDownload = useCallback(() => {
     window.open(file.fileUrl, "_blank");
     setShowMenu(false);
-  };
+  }, [file.fileUrl]);
 
-  const handleOpen = () => {
+  const handleOpen = useCallback(() => {
     window.open(file.fileUrl, "_blank");
     setShowMenu(false);
-  };
+  }, [file.fileUrl]);
 
   // Dummy handlers for features not yet implemented
-  const handleCopy = () => {
+  const handleCopy = useCallback(() => {
     console.log("Copy file:", file.id);
     setShowMenu(false);
-  };
+  }, [file.id]);
 
-  const handleMove = () => {
+  const handleMove = useCallback(() => {
     console.log("Move file:", file.id);
     setShowMenu(false);
-  };
+  }, [file.id]);
 
-  const handleShare = () => {
+  const handleShare = useCallback(() => {
     console.log("Share file:", file.id);
     setShowMenu(false);
-  };
+  }, [file.id]);
 
   const isImage = file.fileType.startsWith("image/");
   const isVideo = file.fileType.startsWith("video/");
