@@ -69,8 +69,11 @@ const FileCardComponent: React.FC<FileCardProps> = ({
           id: file.id,
           fileName: newFileName.trim(),
         });
-        setIsRenaming(false);
-        setShowMenu(false);
+        // Batch state updates together
+        React.startTransition(() => {
+          setIsRenaming(false);
+          setShowMenu(false);
+        });
       } catch (error) {
         console.error("Failed to rename file:", error);
       }
@@ -212,8 +215,11 @@ const FileCardComponent: React.FC<FileCardProps> = ({
                 onKeyDown={(e) => {
                   if (e.key === "Enter") handleRename();
                   if (e.key === "Escape") {
-                    setIsRenaming(false);
-                    setNewFileName(file.fileName);
+                    // Batch state updates together
+                    React.startTransition(() => {
+                      setIsRenaming(false);
+                      setNewFileName(file.fileName);
+                    });
                   }
                 }}
                 className="w-full text-xs sm:text-sm font-medium text-gray-900 bg-transparent border-b border-blue-500 px-0 py-1 outline-none"
@@ -282,8 +288,11 @@ const FileCardComponent: React.FC<FileCardProps> = ({
         type="file"
         onOpen={handleOpen}
         onRename={() => {
-          setIsRenaming(true);
-          setShowMenu(false);
+          // Batch state updates together
+          React.startTransition(() => {
+            setIsRenaming(true);
+            setShowMenu(false);
+          });
         }}
         onDownload={handleDownload}
         onCopy={handleCopy}
