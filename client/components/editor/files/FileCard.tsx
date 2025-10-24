@@ -29,7 +29,7 @@ interface FileCardProps {
   uploaderAvatar?: string;
 }
 
-export const FileCard: React.FC<FileCardProps> = ({
+const FileCardComponent: React.FC<FileCardProps> = ({
   file,
   onSelect,
   isSelected = false,
@@ -288,3 +288,15 @@ export const FileCard: React.FC<FileCardProps> = ({
     </div>
   );
 };
+
+// Memoize component to prevent unnecessary re-renders
+export const FileCard = React.memo(FileCardComponent, (prevProps, nextProps) => {
+  // Custom comparison function for better control over re-renders
+  return (
+    prevProps.file.id === nextProps.file.id &&
+    prevProps.file.fileName === nextProps.file.fileName &&
+    prevProps.file.updatedAt === nextProps.file.updatedAt &&
+    prevProps.isSelected === nextProps.isSelected &&
+    prevProps.onSelect === nextProps.onSelect
+  );
+});
