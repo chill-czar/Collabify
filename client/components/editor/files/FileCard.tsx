@@ -69,6 +69,7 @@ const FileCardComponent: React.FC<FileCardProps> = ({
           id: file.id,
           fileName: newFileName.trim(),
         });
+        // React 18 automatically batches these setState calls
         setIsRenaming(false);
         setShowMenu(false);
       } catch (error) {
