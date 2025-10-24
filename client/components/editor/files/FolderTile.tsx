@@ -15,6 +15,7 @@ interface FolderTileProps {
     createdAt: string;
     updatedAt: string;
   };
+  projectId: string;
   onSelect?: (folder: any) => void;
   isSelected?: boolean;
   creatorName?: string;
@@ -23,6 +24,7 @@ interface FolderTileProps {
 
 export const FolderTile: React.FC<FolderTileProps> = ({
   folder,
+  projectId,
   onSelect,
   isSelected = false,
   creatorName = "Unknown User",
@@ -37,8 +39,8 @@ export const FolderTile: React.FC<FolderTileProps> = ({
   const buttonRef = useRef<HTMLButtonElement>(null);
   const errorTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
-  const deleteFolder = useDeleteFolder();
-  const updateFolder = useUpdateFolder();
+  const deleteFolder = useDeleteFolder(projectId, folder.parentFolderId);
+  const updateFolder = useUpdateFolder(projectId, folder.parentFolderId);
 
   // Update newFolderName when folder.name changes (e.g., from external updates)
   useEffect(() => {

@@ -90,6 +90,8 @@ export const FileManagerDemo: React.FC<FileManagerDemoProps> = ({
             onClose={handleSidebarClose}
             item={selectedItem}
             type={selectedType}
+            projectId={projectId}
+            currentFolderId={folderId}
           />
         )}
       </div>

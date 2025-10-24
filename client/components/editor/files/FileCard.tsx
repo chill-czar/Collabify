@@ -22,7 +22,9 @@ interface FileCardProps {
     updatedAt: string;
     isStarred?: boolean;
     visibility: string;
+    folderId?: string | null;
   };
+  projectId: string;
   onSelect?: (file: any) => void;
   isSelected?: boolean;
   uploaderName?: string;
@@ -31,6 +33,7 @@ interface FileCardProps {
 
 export const FileCard: React.FC<FileCardProps> = ({
   file,
+  projectId,
   onSelect,
   isSelected = false,
   uploaderName = "Unknown User",
@@ -41,8 +44,8 @@ export const FileCard: React.FC<FileCardProps> = ({
   const [newFileName, setNewFileName] = useState(file.fileName);
   const [imageError, setImageError] = useState(false);
 
-  const deleteFile = useDeleteFile();
-  const updateFile = useUpdateFile();
+  const deleteFile = useDeleteFile(projectId, file.folderId);
+  const updateFile = useUpdateFile(projectId, file.folderId);
 
   const handleMenuClick = (e: React.MouseEvent) => {
     e.stopPropagation();
