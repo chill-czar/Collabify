@@ -1,4 +1,4 @@
-import axios from "axios";
+import axios, { AxiosError } from "axios";
 import { useAuth } from "@clerk/nextjs";
 
 const api = axios.create({
@@ -33,6 +33,57 @@ api.interceptors.request.use(
     return config;
   },
   (error) => Promise.reject(error)
+);
+
+// Add response interceptor for auth error handling
+api.interceptors.response.use(
+  (response) => response,
+  async (error: AxiosError) => {
+    const originalRequest = error.config as any;
+
+    // Handle 401 Unauthorized - token expired or invalid
+    if (error.response?.status === 401 && !originalRequest._authRetry) {
+      originalRequest._authRetry = true;
+
+      if (typeof window !== "undefined") {
+        try {
+          const clerk = (window as any).__clerk;
+
+          if (clerk?.session) {
+            // Try to refresh the token
+            const newToken = await clerk.session.getToken({ skipCache: true });
+
+            if (newToken) {
+              originalRequest.headers.Authorization = `Bearer ${newToken}`;
+              return api(originalRequest);
+            }
+          }
+
+          // If refresh fails, redirect to login
+          console.warn("Authentication failed, redirecting to login");
+          window.location.href = "/login";
+        } catch (refreshError) {
+          console.error("Token refresh failed:", refreshError);
+          window.location.href = "/login";
+        }
+      }
+    }
+
+    // Handle 403 Forbidden - insufficient permissions
+    if (error.response?.status === 403) {
+      console.error("Access forbidden: Insufficient permissions");
+      // You can show a toast notification here
+      if (typeof window !== "undefined") {
+        // Optionally redirect to a forbidden page or show error
+        const errorMessage =
+          (error.response.data as any)?.message ||
+          "You don't have permission to access this resource";
+        console.error(errorMessage);
+      }
+    }
+
+    return Promise.reject(error);
+  }
 );
 
 export default api;
