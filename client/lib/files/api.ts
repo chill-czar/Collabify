@@ -233,6 +233,7 @@ export const useFiles = (
   useQuery({
     queryKey: ["projects", projectId, "files", folderId ?? null],
     queryFn: () => listFiles({ projectId, folderId }),
+    staleTime: 1000 * 60, // 1 minute - files change moderately
     ...options,
   });
 
@@ -243,6 +244,7 @@ export const useFile = (
   useQuery({
     queryKey: ["files", fileId],
     queryFn: () => getFile(fileId),
+    staleTime: 1000 * 60, // 1 minute - file details change moderately
     ...options,
   });
 
@@ -341,6 +343,7 @@ export const useFolder = (
   useQuery({
     queryKey: ["folders", folderId],
     queryFn: () => getFolder(folderId),
+    staleTime: 1000 * 60 * 2, // 2 minutes - folders change less frequently
     ...options,
   });
 
@@ -405,5 +408,6 @@ export const useFolderContents = (
   useQuery({
     queryKey: ["folders", folderId],
     queryFn: () => getFolder(folderId),
+    staleTime: 1000 * 60 * 2, // 2 minutes - folders change less frequently
     ...options,
   });

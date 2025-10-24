@@ -10,6 +10,7 @@ export default function DashboardCards() {
   const { data: projects = [], isLoading: projectsLoading } = useQuery({
     queryKey: ["projects"],
     queryFn: fetchProjects,
+    staleTime: 1000 * 60 * 5, // 5 minutes - projects are relatively static
   });
 
   // ✅ Fetch files (loop through projects)
