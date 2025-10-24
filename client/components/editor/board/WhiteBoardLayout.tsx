@@ -8,8 +8,8 @@ import Canvas from "./Canvas";
 import { ViewMode } from "@/types/whiteboard";
 import { useConvexAuth, useMutation, useQuery } from "convex/react";
 import { api } from "@/convex/_generated/api";
-import { useSelector } from "react-redux";
-import { RootState } from "@/lib/store";
+import { useBoardState } from "@/hooks/useBoardState";
+
 import { Id } from "@/convex/_generated/dataModel";
 import { Editor as EmptyEditor } from "./Editor";
 import dynamic from "next/dynamic";
@@ -24,9 +24,8 @@ export const WhiteboardLayout: React.FC = () => {
   const [isMobileSidebarOpen, setIsMobileSidebarOpen] = useState(false);
   const [boardTitle, setBoardTitle] = useState("");
 
-  const currentBoardId = useSelector(
-    (state: RootState) => state.currentBoard.currentBoardId
-  ) as Id<"board"> | null;
+  // Use custom hook instead of direct Redux selector
+  const { currentBoardId } = useBoardState();
 
   console.log("current board id", currentBoardId);
   const board = useQuery(

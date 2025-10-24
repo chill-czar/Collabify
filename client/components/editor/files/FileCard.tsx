@@ -1,11 +1,11 @@
 // components/files/FileCard.tsx
-import React, { useState } from "react";
+import React, { useState, useCallback, useMemo } from "react";
 import { MoreVertical } from "lucide-react";
 import { useDeleteFile, useUpdateFile } from "@/lib/files/api";
 import { Loading } from "@/components/editor/files/Loading";
-import { FileIcon } from "./FileIcon";
 import { ContextMenu } from "./ContextMenu";
-import { formatDate } from "@/utils/fileUtils";
+import { FilePreview } from "./FilePreview";
+import { FileMeta } from "./FileMeta";
 
 interface FileCardProps {
   file: {
@@ -29,7 +29,7 @@ interface FileCardProps {
   uploaderAvatar?: string;
 }
 
-export const FileCard: React.FC<FileCardProps> = ({
+const FileCardComponent: React.FC<FileCardProps> = ({
   file,
   onSelect,
   isSelected = false,
@@ -44,31 +44,32 @@ export const FileCard: React.FC<FileCardProps> = ({
   const deleteFile = useDeleteFile();
   const updateFile = useUpdateFile();
 
-  const handleMenuClick = (e: React.MouseEvent) => {
+  const handleMenuClick = useCallback((e: React.MouseEvent) => {
     e.stopPropagation();
-    setShowMenu(!showMenu);
-  };
+    setShowMenu((prev) => !prev);
+  }, []);
 
-  const handleCardClick = () => {
+  const handleCardClick = useCallback(() => {
     onSelect?.(file);
-  };
+  }, [onSelect, file]);
 
-  const handleDelete = async () => {
+  const handleDelete = useCallback(async () => {
     try {
       await deleteFile.mutateAsync(file.id);
       setShowMenu(false);
     } catch (error) {
       console.error("Failed to delete file:", error);
     }
-  };
+  }, [deleteFile, file.id]);
 
-  const handleRename = async () => {
+  const handleRename = useCallback(async () => {
     if (newFileName.trim() && newFileName !== file.fileName) {
       try {
         await updateFile.mutateAsync({
           id: file.id,
           fileName: newFileName.trim(),
         });
+        // React 18 automatically batches these setState calls
         setIsRenaming(false);
         setShowMenu(false);
       } catch (error) {
@@ -77,108 +78,50 @@ export const FileCard: React.FC<FileCardProps> = ({
     } else {
       setIsRenaming(false);
     }
-  };
+  }, [newFileName, file.fileName, file.id, updateFile]);
 
-  const handleDownload = () => {
+  const handleDownload = useCallback(() => {
     window.open(file.fileUrl, "_blank");
     setShowMenu(false);
-  };
+  }, [file.fileUrl]);
 
-  const handleOpen = () => {
+  const handleOpen = useCallback(() => {
     window.open(file.fileUrl, "_blank");
     setShowMenu(false);
-  };
+  }, [file.fileUrl]);
 
   // Dummy handlers for features not yet implemented
-  const handleCopy = () => {
+  const handleCopy = useCallback(() => {
     console.log("Copy file:", file.id);
     setShowMenu(false);
-  };
+  }, [file.id]);
 
-  const handleMove = () => {
+  const handleMove = useCallback(() => {
     console.log("Move file:", file.id);
     setShowMenu(false);
-  };
+  }, [file.id]);
 
-  const handleShare = () => {
+  const handleShare = useCallback(() => {
     console.log("Share file:", file.id);
     setShowMenu(false);
-  };
+  }, [file.id]);
 
-  const isImage = file.fileType.startsWith("image/");
-  const isVideo = file.fileType.startsWith("video/");
-  const isPDF = file.fileType === "application/pdf";
-  const isDocument =
-    file.fileType.includes("document") ||
-    file.fileType.includes("text") ||
-    file.fileType.includes("sheet");
+  // Memoize file type checks
+  const fileTypeChecks = useMemo(() => ({
+    isImage: file.fileType.startsWith("image/"),
+    isVideo: file.fileType.startsWith("video/"),
+    isPDF: file.fileType === "application/pdf",
+    isDocument:
+      file.fileType.includes("document") ||
+      file.fileType.includes("text") ||
+      file.fileType.includes("sheet"),
+  }), [file.fileType]);
 
-  const getPreviewContent = () => {
-    // Show thumbnail for images (if available and not errored)
-    if (isImage && file.fileUrl && !imageError) {
-      return (
-        <img
-          src={file.fileUrl}
-          alt={file.fileName}
-          className="w-full h-full object-cover"
-          onError={() => setImageError(true)}
-        />
-      );
-    }
+  const { isImage, isVideo, isPDF, isDocument } = fileTypeChecks;
 
-    // Show video thumbnail with play icon
-    if (isVideo) {
-      return (
-        <div className="w-full h-full bg-black flex items-center justify-center relative">
-          {file.fileUrl && !imageError ? (
-            <>
-              <video
-                className="w-full h-full object-cover"
-                onError={() => setImageError(true)}
-              >
-                <source src={file.fileUrl} />
-              </video>
-              <div className="absolute inset-0 bg-black bg-opacity-20 flex items-center justify-center">
-                <div className="w-8 h-8 sm:w-10 sm:h-10 md:w-12 md:h-12 bg-white bg-opacity-90 rounded-full flex items-center justify-center">
-                  <div className="w-0 h-0 border-l-2 sm:border-l-3 md:border-l-4 border-l-gray-800 border-t-1 border-b-1 sm:border-t-2 sm:border-b-2 border-t-transparent border-b-transparent ml-0.5 sm:ml-1"></div>
-                </div>
-              </div>
-            </>
-          ) : (
-            <div className="w-12 h-12 sm:w-16 sm:h-16 md:w-20 md:h-20 lg:w-24 lg:h-24 xl:w-28 xl:h-28 text-white">
-              <FileIcon fileType={file.fileType} category={file.category} />
-            </div>
-          )}
-        </div>
-      );
-    }
-
-    // Document preview placeholder
-    if (isPDF || isDocument) {
-      return (
-        <div className="w-full h-full bg-gray-50 flex flex-col items-center justify-center p-2 sm:p-3 md:p-4">
-          <div className="w-12 h-12 sm:w-16 sm:h-16 md:w-20 md:h-20 lg:w-24 lg:h-24 xl:w-28 xl:h-28 mb-1 sm:mb-2">
-            <FileIcon fileType={file.fileType} category={file.category} />
-          </div>
-          <div className="w-full h-12 sm:h-16 md:h-20 bg-white border border-gray-200 rounded shadow-sm flex flex-col justify-center px-2 sm:px-3 space-y-1">
-            <div className="h-0.5 sm:h-1 bg-gray-200 rounded"></div>
-            <div className="h-0.5 sm:h-1 bg-gray-200 rounded w-4/5"></div>
-            <div className="h-0.5 sm:h-1 bg-gray-200 rounded"></div>
-            <div className="h-0.5 sm:h-1 bg-gray-200 rounded w-3/5"></div>
-          </div>
-        </div>
-      );
-    }
-
-    // Default file icon
-    return (
-      <div className="w-full h-full bg-gray-50 flex items-center justify-center">
-        <div className="w-12 h-12 sm:w-16 sm:h-16 md:w-20 md:h-20 lg:w-24 lg:h-24 xl:w-28 xl:h-28">
-          <FileIcon fileType={file.fileType} category={file.category} />
-        </div>
-      </div>
-    );
-  };
+  const handleImageError = useCallback(() => {
+    setImageError(true);
+  }, []);
 
   if (deleteFile.isPending || updateFile.isPending) {
     return <Loading variant="card" />;
@@ -237,36 +180,24 @@ export const FileCard: React.FC<FileCardProps> = ({
         {/* Preview Section - Matches folder icon height exactly */}
         <div className="mx-2 sm:mx-3 mb-2 sm:mb-3 flex-1 flex items-center justify-center">
           <div className="w-full h-20 sm:h-24 md:h-28 lg:h-32 xl:h-36 rounded-md overflow-hidden bg-gray-100 border border-gray-200">
-            {getPreviewContent()}
+            <FilePreview
+              file={file}
+              isImage={isImage}
+              isVideo={isVideo}
+              isPDF={isPDF}
+              isDocument={isDocument}
+              imageError={imageError}
+              onImageError={handleImageError}
+            />
           </div>
         </div>
 
         {/* Footer Section */}
-        <div className="px-2 sm:px-3 pb-2 sm:pb-3 flex items-center space-x-1 sm:space-x-2 flex-shrink-0">
-          {/* User Avatar */}
-          <div className="flex-shrink-0">
-            {uploaderAvatar ? (
-              <img
-                src={uploaderAvatar}
-                alt={uploaderName}
-                className="w-4 h-4 sm:w-5 sm:h-5 rounded-full"
-              />
-            ) : (
-              <div className="w-4 h-4 sm:w-5 sm:h-5 rounded-full bg-gray-400 flex items-center justify-center">
-                <span className="text-xs text-white font-medium">
-                  {uploaderName.charAt(0).toUpperCase()}
-                </span>
-              </div>
-            )}
-          </div>
-
-          {/* Context Text */}
-          <div className="flex-1 min-w-0">
-            <p className="text-xs text-gray-600 truncate">
-              You opened • {formatDate(file.createdAt)}
-            </p>
-          </div>
-        </div>
+        <FileMeta
+          uploaderName={uploaderName}
+          uploaderAvatar={uploaderAvatar}
+          createdAt={file.createdAt}
+        />
       </div>
 
       {/* Context Menu */}
@@ -288,3 +219,15 @@ export const FileCard: React.FC<FileCardProps> = ({
     </div>
   );
 };
+
+// Memoize component to prevent unnecessary re-renders
+export const FileCard = React.memo(FileCardComponent, (prevProps, nextProps) => {
+  // Custom comparison function for better control over re-renders
+  return (
+    prevProps.file.id === nextProps.file.id &&
+    prevProps.file.fileName === nextProps.file.fileName &&
+    prevProps.file.updatedAt === nextProps.file.updatedAt &&
+    prevProps.isSelected === nextProps.isSelected &&
+    prevProps.onSelect === nextProps.onSelect
+  );
+});

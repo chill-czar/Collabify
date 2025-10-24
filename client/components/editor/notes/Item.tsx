@@ -23,7 +23,7 @@ import {
   Trash,
 } from "lucide-react";
 import { toast } from "sonner";
-import { useUser } from "@clerk/clerk-react";
+import { useUser } from "@clerk/nextjs";
 import { useDispatch } from "react-redux";
 import { setCurrentNoteId } from "@/lib/slices/currentNoteIdSlice";
 

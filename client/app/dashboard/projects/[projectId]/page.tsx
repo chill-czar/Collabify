@@ -1,5 +1,7 @@
 "use client";
 
+
+export const dynamic = "force-dynamic";
 import Activity from "@/components/projects/Activity";
 import Members from "@/components/projects/Members";
 import Overview from "@/components/projects/Overview";

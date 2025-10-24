@@ -1,5 +1,7 @@
 "use client";
 
+
+export const dynamic = "force-dynamic";
 import React, { useEffect } from "react";
 import {
   FileText,
@@ -21,9 +23,9 @@ import { RootState } from "@/lib/slices/tabSlice";
 import { setActiveTab } from "@/lib/slices/tabSlice";
 import NotesLayout from "@/components/editor/notes/NotesLayout";
 import Notes from "@/components/editor/notes/Notes";
-import FlowTab from "@/components/editor/flow/Flow";
 import SlackDashboard from "@/components/editor/chats/Chats";
 import WorkflowDashboard from "@/components/editor/workflow/Workflow";
+import FlowTab from "@/components/editor/flow/Flow";
 
 const Editor = () => {
   const dispatch = useDispatch();
@@ -47,10 +49,10 @@ const Editor = () => {
       ),
     },
     { name: "Board", icon: PenTool, content: <WhiteBoard /> },
-    // { name: "Meet", icon: Video, content: <VideoCall /> },
-    // { name: "Flow", icon: KanbanSquare, content: <FlowTab /> },
-    // { name: "WorkFlow", icon: Workflow, content: <WorkflowDashboard /> },
-    // { name: "Chats", icon: MessageSquare, content: <SlackDashboard /> },
+    { name: "Meet", icon: Video, content: <VideoCall /> },
+    { name: "Flow", icon: KanbanSquare, content: <FlowTab /> },
+    { name: "WorkFlow", icon: Workflow, content: <WorkflowDashboard /> },
+    { name: "Chats", icon: MessageSquare, content: <SlackDashboard /> },
   ];
 
   return (
