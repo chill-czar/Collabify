@@ -77,6 +77,17 @@ export const listFiles = async (args: {
 };
 
 /**
+ * Get all files for the current user across all projects (batched)
+ */
+export const getAllFilesForUser = async (): Promise<FileResponse[]> => {
+  const res = await apiClient.get<{ success: boolean; data: FileResponse[] }>(
+    "/files/user/all"
+  );
+  if (!res.success) throw new Error("Failed to fetch user files");
+  return res.data;
+};
+
+/**
  * Get single file details
  */
 export const getFile = async (
@@ -241,6 +252,16 @@ export const useFile = (
   useQuery({
     queryKey: ["files", fileId],
     queryFn: () => getFile(fileId),
+    staleTime: STALE_TIME.FILES,
+    ...options,
+  });
+
+export const useAllFilesForUser = (
+  options?: UseQueryOptions<FileResponse[], unknown>
+) =>
+  useQuery({
+    queryKey: ["files", "user", "all"],
+    queryFn: getAllFilesForUser,
     staleTime: STALE_TIME.FILES,
     ...options,
   });
