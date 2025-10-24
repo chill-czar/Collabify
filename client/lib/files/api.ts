@@ -286,7 +286,31 @@ export const useUpdateFile = (
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: updateFile,
-    onSuccess: (data) => {
+    // Optimistic update
+    onMutate: async (variables) => {
+      // Cancel any outgoing refetches
+      await queryClient.cancelQueries({ queryKey: ["files", variables.id] });
+
+      // Snapshot the previous value
+      const previousFile = queryClient.getQueryData(["files", variables.id]);
+
+      // Optimistically update to the new value
+      queryClient.setQueryData(["files", variables.id], (old: any) => {
+        if (!old) return old;
+        return { ...old, ...variables };
+      });
+
+      // Return context with the snapshot
+      return { previousFile };
+    },
+    // On error, roll back to the previous value
+    onError: (err, variables, context: any) => {
+      if (context?.previousFile) {
+        queryClient.setQueryData(["files", variables.id], context.previousFile);
+      }
+    },
+    // Always refetch after error or success
+    onSettled: (data, error, variables) => {
       if (data?.id) {
         queryClient.invalidateQueries({
           queryKey: ["files", data.id],
@@ -310,7 +334,54 @@ export const useDeleteFile = () => {
     string // variables = fileId
   >({
     mutationFn: deleteFile,
-    onSuccess: (_, fileId) => {
+    // Optimistic update
+    onMutate: async (fileId) => {
+      // Cancel any outgoing refetches
+      await queryClient.cancelQueries({
+        queryKey: ["projects"],
+        predicate: (query) =>
+          query.queryKey[0] === "projects" && query.queryKey[2] === "files"
+      });
+
+      // Snapshot the previous values
+      const previousQueries: Array<{ key: any; data: any }> = [];
+      queryClient.getQueryCache().findAll({
+        queryKey: ["projects"],
+        predicate: (query) =>
+          query.queryKey[0] === "projects" && query.queryKey[2] === "files"
+      }).forEach((query) => {
+        previousQueries.push({ key: query.queryKey, data: query.state.data });
+      });
+
+      // Optimistically remove the file from all relevant queries
+      queryClient.setQueriesData(
+        {
+          queryKey: ["projects"],
+          predicate: (query) =>
+            query.queryKey[0] === "projects" && query.queryKey[2] === "files"
+        },
+        (old: any) => {
+          if (!old || !Array.isArray(old.files)) return old;
+          return {
+            ...old,
+            files: old.files.filter((f: any) => f.id !== fileId)
+          };
+        }
+      );
+
+      // Return context with the snapshots
+      return { previousQueries };
+    },
+    // On error, roll back to the previous values
+    onError: (err, fileId, context: any) => {
+      if (context?.previousQueries) {
+        context.previousQueries.forEach(({ key, data }: any) => {
+          queryClient.setQueryData(key, data);
+        });
+      }
+    },
+    // Always refetch after error or success
+    onSettled: (_, __, fileId) => {
       queryClient.invalidateQueries({
         queryKey: ["projects"],
         predicate: (query) =>
