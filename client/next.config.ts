@@ -11,6 +11,10 @@ const nextConfig: NextConfig = {
       },
     ],
   },
+  // Skip prerendering for pages with dynamic behavior
+  experimental: {
+    typedRoutes: false,
+  },
 };
 
 export default nextConfig;

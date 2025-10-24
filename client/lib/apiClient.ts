@@ -7,7 +7,7 @@ api.interceptors.response.use(
     // Return successful response as-is
     return response;
   },
-  async (error: AxiosError) => {
+  async (error: AxiosError<{ message?: string }>) => {
     const config = error.config;
 
     // Retry logic for network errors or 5xx server errors

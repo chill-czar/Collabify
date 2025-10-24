@@ -3,7 +3,7 @@ import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import ReduxProvider from "../providers/ReduxProvider";
 import QueryProvider from "../providers/QueryProvider";
-import SyncUser from "@/components/ui/SyncUser";
+import SyncUserWrapper from "@/components/ui/SyncUserWrapper";
 import { ConvexClientProvider } from "@/providers/ConvexProvider";
 import { EdgeStoreProvider } from "@/lib/edgestore";
 import { Toaster } from "sonner";
@@ -44,6 +44,9 @@ export const metadata: Metadata = {
   },
   metadataBase: new URL("https://collabify-beige.vercel.app"), // Your domain
 };
+
+export const dynamic = "force-dynamic";
+
 export default function RootLayout({
   children,
 }: Readonly<{
@@ -57,7 +60,7 @@ export default function RootLayout({
         >
           <QueryProvider>
             <ReduxProvider>
-              <SyncUser />
+              <SyncUserWrapper />
               <EdgeStoreProvider>
                 <Toaster position="bottom-center" />
                 <ModalProvider />
