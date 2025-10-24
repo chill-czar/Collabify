@@ -164,6 +164,7 @@ export const FileGrid: React.FC<FileGridProps> = ({
             >
               <FolderTile
                 folder={folder}
+                projectId={projectId}
                 onSelect={handleFolderSelect}
                 isSelected={
                   selectedType === "folder" && selectedItem?.id === folder.id
@@ -180,6 +181,7 @@ export const FileGrid: React.FC<FileGridProps> = ({
             >
               <FileCard
                 file={file}
+                projectId={projectId}
                 onSelect={handleFileSelect}
                 isSelected={
                   selectedType === "file" && selectedItem?.id === file.id

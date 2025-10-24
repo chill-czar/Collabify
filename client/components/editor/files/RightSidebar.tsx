@@ -14,6 +14,8 @@ interface RightSidebarProps {
   onClose: () => void;
   item: any;
   type: "file" | "folder";
+  projectId: string;
+  currentFolderId?: string | null;
 }
 
 export const RightSidebar: React.FC<RightSidebarProps> = ({
@@ -21,14 +23,19 @@ export const RightSidebar: React.FC<RightSidebarProps> = ({
   onClose,
   item,
   type,
+  projectId,
+  currentFolderId,
 }) => {
   const [isRenaming, setIsRenaming] = useState(false);
   const [newName, setNewName] = useState("");
 
-  const deleteFile = useDeleteFile();
-  const updateFile = useUpdateFile();
-  const deleteFolder = useDeleteFolder();
-  const updateFolder = useUpdateFolder();
+  // For files, use the file's folderId; for folders, use their parentFolderId
+  const folderId = type === "file" ? item?.folderId : item?.parentFolderId;
+
+  const deleteFile = useDeleteFile(projectId, folderId);
+  const updateFile = useUpdateFile(projectId, folderId);
+  const deleteFolder = useDeleteFolder(projectId, folderId);
+  const updateFolder = useUpdateFolder(projectId, folderId);
 
   useEffect(() => {
     if (item) {

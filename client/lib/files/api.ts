@@ -243,6 +243,8 @@ export const useFile = (
   });
 
 export const useUpdateFile = (
+  projectId: string,
+  folderId?: string | null,
   options?: UseMutationOptions<
     NonNullable<PatchFileUpdateResponse["data"]>,
     unknown,
@@ -265,7 +267,7 @@ export const useUpdateFile = (
           queryKey: ["file", data.id],
         });
         queryClient.invalidateQueries({
-          queryKey: ["files"],
+          queryKey: ["files", projectId, folderId],
         });
       }
     },
@@ -273,7 +275,10 @@ export const useUpdateFile = (
   });
 };
 
-export const useDeleteFile = () => {
+export const useDeleteFile = (
+  projectId: string,
+  folderId?: string | null
+) => {
   const queryClient = useQueryClient();
   return useMutation<
     { success: true; message: string },
@@ -282,7 +287,9 @@ export const useDeleteFile = () => {
   >({
     mutationFn: deleteFile,
     onSuccess: (_, fileId) => {
-      queryClient.invalidateQueries({ queryKey: ["files"] });
+      queryClient.invalidateQueries({
+        queryKey: ["files", projectId, folderId]
+      });
       queryClient.removeQueries({ queryKey: ["file", fileId] });
     },
   });
@@ -305,10 +312,13 @@ export const useCreateFolder = (
     }
   >({
     mutationFn: (args) => createFolder({ ...args, parentId, projectId }),
-    onSuccess: () => {
-      queryClient.invalidateQueries({
-        queryKey: ["folder", projectId, parentId],
-      });
+    onSuccess: (data) => {
+      // Invalidate the parent folder if it was created inside one
+      if (parentId) {
+        queryClient.invalidateQueries({
+          queryKey: ["folder", parentId],
+        });
+      }
       queryClient.invalidateQueries({
         queryKey: ["files", projectId, parentId],
       });
@@ -334,7 +344,10 @@ export const useFolder = (
     ...options,
   });
 
-export const useUpdateFolder = () => {
+export const useUpdateFolder = (
+  projectId: string,
+  parentId?: string | null
+) => {
   const queryClient = useQueryClient();
   return useMutation<
     PatchFolderSuccessResponse["data"],
@@ -352,13 +365,18 @@ export const useUpdateFolder = () => {
     onSuccess: (data) => {
       if (data?.id) {
         queryClient.invalidateQueries({ queryKey: ["folder", data.id] });
-        queryClient.invalidateQueries({ queryKey: ["files"] });
+        queryClient.invalidateQueries({
+          queryKey: ["files", projectId, parentId]
+        });
       }
     },
   });
 };
 
-export const useDeleteFolder = () => {
+export const useDeleteFolder = (
+  projectId: string,
+  parentId?: string | null
+) => {
   const queryClient = useQueryClient();
   return useMutation<
     DeleteFolderSuccess["data"],
@@ -366,9 +384,13 @@ export const useDeleteFolder = () => {
     { folderId: string; force?: boolean }
   >({
     mutationFn: ({ folderId, force }) => deleteFolder(folderId, force),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["folder"] });
-      queryClient.invalidateQueries({ queryKey: ["files"] });
+    onSuccess: (_, variables) => {
+      // Invalidate the deleted folder
+      queryClient.removeQueries({ queryKey: ["folder", variables.folderId] });
+      // Invalidate parent folder's file list
+      queryClient.invalidateQueries({
+        queryKey: ["files", projectId, parentId]
+      });
     },
   });
 };
