@@ -296,7 +296,33 @@ export const useUpdateFile = (
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: updateFile,
-    onSuccess: (data) => {
+    onMutate: async (variables) => {
+      // Cancel outgoing refetches
+      await queryClient.cancelQueries({ queryKey: ["files", variables.id] });
+
+      // Snapshot previous value
+      const previousFile = queryClient.getQueryData(["files", variables.id]);
+
+      // Optimistically update to the new value
+      if (previousFile) {
+        queryClient.setQueryData(["files", variables.id], (old: any) => ({
+          ...old,
+          ...variables,
+        }));
+      }
+
+      // Return context with snapshot
+      return { previousFile };
+    },
+    onError: (err, variables, context) => {
+      // Rollback to previous value on error
+      if (context?.previousFile) {
+        queryClient.setQueryData(["files", variables.id], context.previousFile);
+      }
+      // Call custom onError if provided
+      options?.onError?.(err, variables, context);
+    },
+    onSettled: (data) => {
       if (data?.id) {
         // Invalidate specific file
         queryClient.invalidateQueries({
@@ -327,7 +353,44 @@ export const useDeleteFile = (projectId?: string, folderId?: string | null) => {
     string // variables = fileId
   >({
     mutationFn: deleteFile,
-    onSuccess: (_, fileId) => {
+    onMutate: async (fileId) => {
+      // Cancel outgoing refetches
+      await queryClient.cancelQueries({ queryKey: ["files"] });
+
+      // Snapshot previous values
+      const previousFile = queryClient.getQueryData(["files", fileId]);
+      const previousList = projectId
+        ? queryClient.getQueryData(["files", projectId, folderId ?? null])
+        : null;
+
+      // Optimistically remove from list
+      if (previousList && projectId) {
+        queryClient.setQueryData(
+          ["files", projectId, folderId ?? null],
+          (old: any) => {
+            if (Array.isArray(old)) {
+              return old.filter((file: any) => file.id !== fileId);
+            }
+            return old;
+          }
+        );
+      }
+
+      return { previousFile, previousList };
+    },
+    onError: (err, fileId, context) => {
+      // Rollback on error
+      if (context?.previousFile) {
+        queryClient.setQueryData(["files", fileId], context.previousFile);
+      }
+      if (context?.previousList && projectId) {
+        queryClient.setQueryData(
+          ["files", projectId, folderId ?? null],
+          context.previousList
+        );
+      }
+    },
+    onSettled: (_, __, fileId) => {
       // Remove specific file from cache
       queryClient.removeQueries({ queryKey: ["files", fileId] });
       // Invalidate specific project/folder list if known
@@ -405,7 +468,30 @@ export const useUpdateFolder = (projectId?: string, parentFolderId?: string | nu
     }
   >({
     mutationFn: updateFolder,
-    onSuccess: (data) => {
+    onMutate: async (variables) => {
+      // Cancel outgoing refetches
+      await queryClient.cancelQueries({ queryKey: ["folders", variables.id] });
+
+      // Snapshot previous value
+      const previousFolder = queryClient.getQueryData(["folders", variables.id]);
+
+      // Optimistically update to the new value
+      if (previousFolder) {
+        queryClient.setQueryData(["folders", variables.id], (old: any) => ({
+          ...old,
+          ...variables,
+        }));
+      }
+
+      return { previousFolder };
+    },
+    onError: (err, variables, context) => {
+      // Rollback on error
+      if (context?.previousFolder) {
+        queryClient.setQueryData(["folders", variables.id], context.previousFolder);
+      }
+    },
+    onSettled: (data) => {
       if (data?.id) {
         // Invalidate specific folder
         queryClient.invalidateQueries({ queryKey: ["folders", data.id] });
