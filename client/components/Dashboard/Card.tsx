@@ -3,7 +3,7 @@
 import { FolderOpen, FileText, Users, Zap } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
 import { fetchProjects } from "@/lib/projects/api";
-import { listFiles } from "@/lib/files/api";
+import { useAllUserFiles } from "@/lib/files/api";
 
 export default function DashboardCards() {
   // ✅ Fetch projects
@@ -12,18 +12,8 @@ export default function DashboardCards() {
     queryFn: fetchProjects,
   });
 
-  // ✅ Fetch files (loop through projects)
-  const { data: files = [], isLoading: filesLoading } = useQuery({
-    queryKey: ["files", projects.map((p) => p.id)],
-    queryFn: async () => {
-      if (!projects.length) return [];
-      const allFiles = await Promise.all(
-        projects.map((project) => listFiles({ projectId: project.id }))
-      );
-      return allFiles.flat();
-    },
-    enabled: projects.length > 0, // only fetch when projects loaded
-  });
+  // ✅ Fetch all files in a single batched API call
+  const { data: files = [], isLoading: filesLoading } = useAllUserFiles();
 
   const cards = [
     {

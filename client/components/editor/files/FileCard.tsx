@@ -1,5 +1,5 @@
 // components/files/FileCard.tsx
-import React, { useState } from "react";
+import React, { useState, useCallback, useMemo } from "react";
 import { MoreVertical } from "lucide-react";
 import { useDeleteFile, useUpdateFile } from "@/lib/files/api";
 import { Loading } from "@/components/editor/files/Loading";
@@ -29,7 +29,7 @@ interface FileCardProps {
   uploaderAvatar?: string;
 }
 
-export const FileCard: React.FC<FileCardProps> = ({
+const FileCardComponent: React.FC<FileCardProps> = ({
   file,
   onSelect,
   isSelected = false,
@@ -44,25 +44,25 @@ export const FileCard: React.FC<FileCardProps> = ({
   const deleteFile = useDeleteFile();
   const updateFile = useUpdateFile();
 
-  const handleMenuClick = (e: React.MouseEvent) => {
+  const handleMenuClick = useCallback((e: React.MouseEvent) => {
     e.stopPropagation();
-    setShowMenu(!showMenu);
-  };
+    setShowMenu((prev) => !prev);
+  }, []);
 
-  const handleCardClick = () => {
+  const handleCardClick = useCallback(() => {
     onSelect?.(file);
-  };
+  }, [onSelect, file]);
 
-  const handleDelete = async () => {
+  const handleDelete = useCallback(async () => {
     try {
       await deleteFile.mutateAsync(file.id);
       setShowMenu(false);
     } catch (error) {
       console.error("Failed to delete file:", error);
     }
-  };
+  }, [deleteFile, file.id]);
 
-  const handleRename = async () => {
+  const handleRename = useCallback(async () => {
     if (newFileName.trim() && newFileName !== file.fileName) {
       try {
         await updateFile.mutateAsync({
@@ -77,43 +77,52 @@ export const FileCard: React.FC<FileCardProps> = ({
     } else {
       setIsRenaming(false);
     }
-  };
+  }, [newFileName, file.fileName, file.id, updateFile]);
 
-  const handleDownload = () => {
+  const handleDownload = useCallback(() => {
     window.open(file.fileUrl, "_blank");
     setShowMenu(false);
-  };
+  }, [file.fileUrl]);
 
-  const handleOpen = () => {
+  const handleOpen = useCallback(() => {
     window.open(file.fileUrl, "_blank");
     setShowMenu(false);
-  };
+  }, [file.fileUrl]);
 
   // Dummy handlers for features not yet implemented
-  const handleCopy = () => {
+  const handleCopy = useCallback(() => {
     console.log("Copy file:", file.id);
     setShowMenu(false);
-  };
+  }, [file.id]);
 
-  const handleMove = () => {
+  const handleMove = useCallback(() => {
     console.log("Move file:", file.id);
     setShowMenu(false);
-  };
+  }, [file.id]);
 
-  const handleShare = () => {
+  const handleShare = useCallback(() => {
     console.log("Share file:", file.id);
     setShowMenu(false);
-  };
+  }, [file.id]);
 
-  const isImage = file.fileType.startsWith("image/");
-  const isVideo = file.fileType.startsWith("video/");
-  const isPDF = file.fileType === "application/pdf";
-  const isDocument =
-    file.fileType.includes("document") ||
-    file.fileType.includes("text") ||
-    file.fileType.includes("sheet");
+  // Memoize file type checks
+  const fileTypeFlags = useMemo(
+    () => ({
+      isImage: file.fileType.startsWith("image/"),
+      isVideo: file.fileType.startsWith("video/"),
+      isPDF: file.fileType === "application/pdf",
+      isDocument:
+        file.fileType.includes("document") ||
+        file.fileType.includes("text") ||
+        file.fileType.includes("sheet"),
+    }),
+    [file.fileType]
+  );
 
-  const getPreviewContent = () => {
+  const { isImage, isVideo, isPDF, isDocument } = fileTypeFlags;
+
+  // Memoize preview content generation
+  const getPreviewContent = useMemo(() => {
     // Show thumbnail for images (if available and not errored)
     if (isImage && file.fileUrl && !imageError) {
       return (
@@ -178,7 +187,7 @@ export const FileCard: React.FC<FileCardProps> = ({
         </div>
       </div>
     );
-  };
+  }, [isImage, isVideo, isPDF, isDocument, file.fileUrl, file.fileType, file.category, imageError]);
 
   if (deleteFile.isPending || updateFile.isPending) {
     return <Loading variant="card" />;
@@ -237,7 +246,7 @@ export const FileCard: React.FC<FileCardProps> = ({
         {/* Preview Section - Matches folder icon height exactly */}
         <div className="mx-2 sm:mx-3 mb-2 sm:mb-3 flex-1 flex items-center justify-center">
           <div className="w-full h-20 sm:h-24 md:h-28 lg:h-32 xl:h-36 rounded-md overflow-hidden bg-gray-100 border border-gray-200">
-            {getPreviewContent()}
+            {getPreviewContent}
           </div>
         </div>
 
@@ -288,3 +297,16 @@ export const FileCard: React.FC<FileCardProps> = ({
     </div>
   );
 };
+
+// Memoize the component to prevent unnecessary re-renders
+export const FileCard = React.memo(FileCardComponent, (prevProps, nextProps) => {
+  // Custom comparison function for better performance
+  return (
+    prevProps.file.id === nextProps.file.id &&
+    prevProps.file.fileName === nextProps.file.fileName &&
+    prevProps.file.updatedAt === nextProps.file.updatedAt &&
+    prevProps.isSelected === nextProps.isSelected &&
+    prevProps.uploaderName === nextProps.uploaderName &&
+    prevProps.uploaderAvatar === nextProps.uploaderAvatar
+  );
+});

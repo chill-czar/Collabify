@@ -76,6 +76,22 @@ export const listFiles = async (args: {
 };
 
 /**
+ * Get all files for the current user across all projects
+ */
+export const getAllFilesForUser = async (): Promise<FileResponse[]> => {
+  try {
+    const res = await apiClient.get<{ success: boolean; data: FileResponse[] }>(
+      "/files/bulk"
+    );
+    if (!res.success) throw new Error("Failed to fetch all files");
+    return res.data;
+  } catch (error) {
+    console.error("Error fetching all user files:", error);
+    throw error;
+  }
+};
+
+/**
  * Get single file details
  */
 export const getFile = async (
@@ -213,10 +229,17 @@ export const useUploadFile = (
 
   return useMutation<UploadFileResponse, Error, UploadFileRequest>({
     mutationFn: (payload: UploadFileRequest) => uploadFile(payload),
-    onSuccess: () => {
+    onSuccess: (data) => {
+      // Invalidate specific project/folder files query
       queryClient.invalidateQueries({
         queryKey: ["files", projectId, parentId ?? null],
       });
+      // Invalidate the specific folder if uploading inside one
+      if (parentId) {
+        queryClient.invalidateQueries({
+          queryKey: ["folders", parentId],
+        });
+      }
     },
   });
 };
@@ -227,8 +250,19 @@ export const useFiles = (
   options?: UseQueryOptions<GetProjectFilesResponse["data"], unknown>
 ) =>
   useQuery({
-    queryKey: ["files", projectId, folderId],
+    queryKey: ["files", projectId, folderId ?? null],
     queryFn: () => listFiles({ projectId, folderId }),
+    staleTime: 1000 * 60, // 1 min - files change frequently
+    ...options,
+  });
+
+export const useAllUserFiles = (
+  options?: UseQueryOptions<FileResponse[], unknown>
+) =>
+  useQuery({
+    queryKey: ["files", "all"],
+    queryFn: getAllFilesForUser,
+    staleTime: 1000 * 60, // 1 min - files change frequently
     ...options,
   });
 
@@ -237,12 +271,15 @@ export const useFile = (
   options?: UseQueryOptions<GetFileResponse["data"]["file"], unknown>
 ) =>
   useQuery({
-    queryKey: ["file", fileId],
+    queryKey: ["files", fileId],
     queryFn: () => getFile(fileId),
+    staleTime: 1000 * 60, // 1 min - file details change frequently
     ...options,
   });
 
 export const useUpdateFile = (
+  projectId?: string,
+  folderId?: string | null,
   options?: UseMutationOptions<
     NonNullable<PatchFileUpdateResponse["data"]>,
     unknown,
@@ -259,21 +296,56 @@ export const useUpdateFile = (
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: updateFile,
-    onSuccess: (data) => {
+    onMutate: async (variables) => {
+      // Cancel outgoing refetches
+      await queryClient.cancelQueries({ queryKey: ["files", variables.id] });
+
+      // Snapshot previous value
+      const previousFile = queryClient.getQueryData(["files", variables.id]);
+
+      // Optimistically update to the new value
+      if (previousFile) {
+        queryClient.setQueryData(["files", variables.id], (old: any) => ({
+          ...old,
+          ...variables,
+        }));
+      }
+
+      // Return context with snapshot
+      return { previousFile };
+    },
+    onError: (err, variables, context) => {
+      // Rollback to previous value on error
+      if (context?.previousFile) {
+        queryClient.setQueryData(["files", variables.id], context.previousFile);
+      }
+      // Call custom onError if provided
+      options?.onError?.(err, variables, context);
+    },
+    onSettled: (data) => {
       if (data?.id) {
+        // Invalidate specific file
         queryClient.invalidateQueries({
-          queryKey: ["file", data.id],
+          queryKey: ["files", data.id],
         });
-        queryClient.invalidateQueries({
-          queryKey: ["files"],
-        });
+        // Invalidate specific project/folder list if known
+        if (projectId) {
+          queryClient.invalidateQueries({
+            queryKey: ["files", projectId, folderId ?? null],
+          });
+        } else {
+          // Fallback to broader invalidation
+          queryClient.invalidateQueries({
+            queryKey: ["files"],
+          });
+        }
       }
     },
     ...options,
   });
 };
 
-export const useDeleteFile = () => {
+export const useDeleteFile = (projectId?: string, folderId?: string | null) => {
   const queryClient = useQueryClient();
   return useMutation<
     { success: true; message: string },
@@ -281,9 +353,55 @@ export const useDeleteFile = () => {
     string // variables = fileId
   >({
     mutationFn: deleteFile,
-    onSuccess: (_, fileId) => {
-      queryClient.invalidateQueries({ queryKey: ["files"] });
-      queryClient.removeQueries({ queryKey: ["file", fileId] });
+    onMutate: async (fileId) => {
+      // Cancel outgoing refetches
+      await queryClient.cancelQueries({ queryKey: ["files"] });
+
+      // Snapshot previous values
+      const previousFile = queryClient.getQueryData(["files", fileId]);
+      const previousList = projectId
+        ? queryClient.getQueryData(["files", projectId, folderId ?? null])
+        : null;
+
+      // Optimistically remove from list
+      if (previousList && projectId) {
+        queryClient.setQueryData(
+          ["files", projectId, folderId ?? null],
+          (old: any) => {
+            if (Array.isArray(old)) {
+              return old.filter((file: any) => file.id !== fileId);
+            }
+            return old;
+          }
+        );
+      }
+
+      return { previousFile, previousList };
+    },
+    onError: (err, fileId, context) => {
+      // Rollback on error
+      if (context?.previousFile) {
+        queryClient.setQueryData(["files", fileId], context.previousFile);
+      }
+      if (context?.previousList && projectId) {
+        queryClient.setQueryData(
+          ["files", projectId, folderId ?? null],
+          context.previousList
+        );
+      }
+    },
+    onSettled: (_, __, fileId) => {
+      // Remove specific file from cache
+      queryClient.removeQueries({ queryKey: ["files", fileId] });
+      // Invalidate specific project/folder list if known
+      if (projectId) {
+        queryClient.invalidateQueries({
+          queryKey: ["files", projectId, folderId ?? null],
+        });
+      } else {
+        // Fallback to broader invalidation
+        queryClient.invalidateQueries({ queryKey: ["files"] });
+      }
     },
   });
 };
@@ -307,10 +425,10 @@ export const useCreateFolder = (
     mutationFn: (args) => createFolder({ ...args, parentId, projectId }),
     onSuccess: () => {
       queryClient.invalidateQueries({
-        queryKey: ["folder", projectId, parentId],
+        queryKey: ["folders", projectId, parentId ?? null],
       });
       queryClient.invalidateQueries({
-        queryKey: ["files", projectId, parentId],
+        queryKey: ["files", projectId, parentId ?? null],
       });
     },
   });
@@ -329,12 +447,13 @@ export const useFolder = (
   >
 ) =>
   useQuery({
-    queryKey: ["folder", folderId],
+    queryKey: ["folders", folderId],
     queryFn: () => getFolder(folderId),
+    staleTime: 1000 * 60 * 2, // 2 min - folders are more static
     ...options,
   });
 
-export const useUpdateFolder = () => {
+export const useUpdateFolder = (projectId?: string, parentFolderId?: string | null) => {
   const queryClient = useQueryClient();
   return useMutation<
     PatchFolderSuccessResponse["data"],
@@ -349,16 +468,51 @@ export const useUpdateFolder = () => {
     }
   >({
     mutationFn: updateFolder,
-    onSuccess: (data) => {
+    onMutate: async (variables) => {
+      // Cancel outgoing refetches
+      await queryClient.cancelQueries({ queryKey: ["folders", variables.id] });
+
+      // Snapshot previous value
+      const previousFolder = queryClient.getQueryData(["folders", variables.id]);
+
+      // Optimistically update to the new value
+      if (previousFolder) {
+        queryClient.setQueryData(["folders", variables.id], (old: any) => ({
+          ...old,
+          ...variables,
+        }));
+      }
+
+      return { previousFolder };
+    },
+    onError: (err, variables, context) => {
+      // Rollback on error
+      if (context?.previousFolder) {
+        queryClient.setQueryData(["folders", variables.id], context.previousFolder);
+      }
+    },
+    onSettled: (data) => {
       if (data?.id) {
-        queryClient.invalidateQueries({ queryKey: ["folder", data.id] });
-        queryClient.invalidateQueries({ queryKey: ["files"] });
+        // Invalidate specific folder
+        queryClient.invalidateQueries({ queryKey: ["folders", data.id] });
+        // Invalidate parent folder's contents
+        if (projectId) {
+          queryClient.invalidateQueries({
+            queryKey: ["folders", projectId, parentFolderId ?? null],
+          });
+          queryClient.invalidateQueries({
+            queryKey: ["files", projectId, parentFolderId ?? null],
+          });
+        } else {
+          // Fallback to broader invalidation
+          queryClient.invalidateQueries({ queryKey: ["files"] });
+        }
       }
     },
   });
 };
 
-export const useDeleteFolder = () => {
+export const useDeleteFolder = (projectId?: string, parentFolderId?: string | null) => {
   const queryClient = useQueryClient();
   return useMutation<
     DeleteFolderSuccess["data"],
@@ -366,9 +520,22 @@ export const useDeleteFolder = () => {
     { folderId: string; force?: boolean }
   >({
     mutationFn: ({ folderId, force }) => deleteFolder(folderId, force),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["folder"] });
-      queryClient.invalidateQueries({ queryKey: ["files"] });
+    onSuccess: (_, { folderId }) => {
+      // Remove specific folder from cache
+      queryClient.removeQueries({ queryKey: ["folders", folderId] });
+      // Invalidate parent folder's contents
+      if (projectId) {
+        queryClient.invalidateQueries({
+          queryKey: ["folders", projectId, parentFolderId ?? null],
+        });
+        queryClient.invalidateQueries({
+          queryKey: ["files", projectId, parentFolderId ?? null],
+        });
+      } else {
+        // Fallback to broader invalidation
+        queryClient.invalidateQueries({ queryKey: ["folders"] });
+        queryClient.invalidateQueries({ queryKey: ["files"] });
+      }
     },
   });
 };
@@ -386,7 +553,8 @@ export const useFolderContents = (
   >
 ) =>
   useQuery({
-    queryKey: ["folder", folderId],
+    queryKey: ["folders", folderId, "contents"],
     queryFn: () => getFolder(folderId),
+    staleTime: 1000 * 60 * 2, // 2 min - folder contents are relatively static
     ...options,
   });
