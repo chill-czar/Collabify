@@ -204,6 +204,10 @@ export const deleteFolder = async (
 // ==========================
 // REACT QUERY HOOKS
 // ==========================
+// Cache invalidation strategy:
+// - Use specific keys: ["projects", projectId, "files", folderId]
+// - Use predicates to selectively invalidate related queries
+// - Avoid broad invalidation (e.g., just ["files"])
 
 export const useUploadFile = (
   projectId: string,
