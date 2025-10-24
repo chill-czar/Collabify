@@ -1,6 +1,6 @@
 "use client";
 
-import { useUser } from "@clerk/clerk-react";
+import { useUser } from "@clerk/nextjs";
 import { useMutation } from "convex/react";
 import { toast } from "sonner";
 import { MoreHorizontal, Trash } from "lucide-react";

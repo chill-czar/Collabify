@@ -2,7 +2,7 @@
 
 import { useConvexAuth } from "convex/react";
 import { cn } from "@/lib/utils";
-import { SignInButton, UserButton } from "@clerk/clerk-react";
+import { SignInButton, UserButton } from "@clerk/nextjs";
 import { Button } from "@/components/ui/button";
 import { Spinner } from "@/components/spinner";
 import Link from "next/link";
