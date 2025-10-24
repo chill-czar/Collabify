@@ -27,6 +27,7 @@ import {
   UseMutationResult,
 } from "@tanstack/react-query";
 import { apiClient } from "../apiClient";
+import { STALE_TIME } from "@/providers/QueryProvider";
 
 // ==========================
 // API CLIENT FUNCTIONS
@@ -72,6 +73,17 @@ export const listFiles = async (args: {
     `/files/project/${args.projectId}${query}`
   );
   if (!res.success) throw new Error("Failed to fetch files");
+  return res.data;
+};
+
+/**
+ * Get all files for the current user across all projects (batched)
+ */
+export const getAllFilesForUser = async (): Promise<FileResponse[]> => {
+  const res = await apiClient.get<{ success: boolean; data: FileResponse[] }>(
+    "/files/user/all"
+  );
+  if (!res.success) throw new Error("Failed to fetch user files");
   return res.data;
 };
 
@@ -215,7 +227,7 @@ export const useUploadFile = (
     mutationFn: (payload: UploadFileRequest) => uploadFile(payload),
     onSuccess: () => {
       queryClient.invalidateQueries({
-        queryKey: ["files", projectId, parentId ?? null],
+        queryKey: ["files", projectId, parentId ?? "root"],
       });
     },
   });
@@ -227,8 +239,9 @@ export const useFiles = (
   options?: UseQueryOptions<GetProjectFilesResponse["data"], unknown>
 ) =>
   useQuery({
-    queryKey: ["files", projectId, folderId],
+    queryKey: ["files", projectId, folderId ?? "root"],
     queryFn: () => listFiles({ projectId, folderId }),
+    staleTime: STALE_TIME.FILES,
     ...options,
   });
 
@@ -237,12 +250,25 @@ export const useFile = (
   options?: UseQueryOptions<GetFileResponse["data"]["file"], unknown>
 ) =>
   useQuery({
-    queryKey: ["file", fileId],
+    queryKey: ["files", fileId],
     queryFn: () => getFile(fileId),
+    staleTime: STALE_TIME.FILES,
+    ...options,
+  });
+
+export const useAllFilesForUser = (
+  options?: UseQueryOptions<FileResponse[], unknown>
+) =>
+  useQuery({
+    queryKey: ["files", "user", "all"],
+    queryFn: getAllFilesForUser,
+    staleTime: STALE_TIME.FILES,
     ...options,
   });
 
 export const useUpdateFile = (
+  projectId?: string,
+  folderId?: string | null,
   options?: UseMutationOptions<
     NonNullable<PatchFileUpdateResponse["data"]>,
     unknown,
@@ -259,21 +285,56 @@ export const useUpdateFile = (
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: updateFile,
-    onSuccess: (data) => {
+    // Optimistic update
+    onMutate: async (variables) => {
+      const fileQueryKey = ["files", variables.id];
+
+      // Cancel outgoing refetches
+      await queryClient.cancelQueries({ queryKey: fileQueryKey });
+
+      // Snapshot the previous value
+      const previousFile = queryClient.getQueryData(fileQueryKey);
+
+      // Optimistically update the cache
+      if (previousFile) {
+        queryClient.setQueryData(fileQueryKey, {
+          ...previousFile,
+          ...variables,
+        });
+      }
+
+      // Return context with previous value
+      return { previousFile, fileQueryKey };
+    },
+    onError: (err, variables, context) => {
+      // Rollback on error
+      if (context?.previousFile) {
+        queryClient.setQueryData(context.fileQueryKey, context.previousFile);
+      }
+      options?.onError?.(err, variables, context);
+    },
+    onSettled: (data) => {
       if (data?.id) {
+        // Invalidate to ensure server state is correct
         queryClient.invalidateQueries({
-          queryKey: ["file", data.id],
+          queryKey: ["files", data.id],
         });
-        queryClient.invalidateQueries({
-          queryKey: ["files"],
-        });
+        if (projectId) {
+          queryClient.invalidateQueries({
+            queryKey: ["files", projectId, folderId ?? "root"],
+          });
+        } else {
+          queryClient.invalidateQueries({
+            queryKey: ["files"],
+          });
+        }
       }
     },
     ...options,
   });
 };
 
-export const useDeleteFile = () => {
+export const useDeleteFile = (projectId?: string, folderId?: string | null) => {
   const queryClient = useQueryClient();
   return useMutation<
     { success: true; message: string },
@@ -281,9 +342,51 @@ export const useDeleteFile = () => {
     string // variables = fileId
   >({
     mutationFn: deleteFile,
-    onSuccess: (_, fileId) => {
-      queryClient.invalidateQueries({ queryKey: ["files"] });
-      queryClient.removeQueries({ queryKey: ["file", fileId] });
+    // Optimistic update
+    onMutate: async (fileId) => {
+      const fileQueryKey = ["files", fileId];
+      const listQueryKey = projectId
+        ? ["files", projectId, folderId ?? "root"]
+        : ["files"];
+
+      // Cancel outgoing refetches
+      await queryClient.cancelQueries({ queryKey: fileQueryKey });
+      await queryClient.cancelQueries({ queryKey: listQueryKey });
+
+      // Snapshot previous values
+      const previousFile = queryClient.getQueryData(fileQueryKey);
+      const previousList = queryClient.getQueryData(listQueryKey);
+
+      // Optimistically remove from lists
+      if (previousList && Array.isArray(previousList)) {
+        queryClient.setQueryData(
+          listQueryKey,
+          previousList.filter((f: any) => f.id !== fileId)
+        );
+      }
+
+      return { previousFile, previousList, fileQueryKey, listQueryKey };
+    },
+    onError: (err, fileId, context) => {
+      // Rollback on error
+      if (context?.previousFile) {
+        queryClient.setQueryData(context.fileQueryKey, context.previousFile);
+      }
+      if (context?.previousList) {
+        queryClient.setQueryData(context.listQueryKey, context.previousList);
+      }
+    },
+    onSettled: (_, __, fileId) => {
+      // Remove specific file from cache
+      queryClient.removeQueries({ queryKey: ["files", fileId] });
+      // Invalidate lists to ensure consistency
+      if (projectId) {
+        queryClient.invalidateQueries({
+          queryKey: ["files", projectId, folderId ?? "root"],
+        });
+      } else {
+        queryClient.invalidateQueries({ queryKey: ["files"] });
+      }
     },
   });
 };
@@ -307,10 +410,10 @@ export const useCreateFolder = (
     mutationFn: (args) => createFolder({ ...args, parentId, projectId }),
     onSuccess: () => {
       queryClient.invalidateQueries({
-        queryKey: ["folder", projectId, parentId],
+        queryKey: ["folders", projectId, parentId ?? "root"],
       });
       queryClient.invalidateQueries({
-        queryKey: ["files", projectId, parentId],
+        queryKey: ["files", projectId, parentId ?? "root"],
       });
     },
   });
@@ -329,12 +432,13 @@ export const useFolder = (
   >
 ) =>
   useQuery({
-    queryKey: ["folder", folderId],
+    queryKey: ["folders", folderId],
     queryFn: () => getFolder(folderId),
+    staleTime: STALE_TIME.FOLDERS,
     ...options,
   });
 
-export const useUpdateFolder = () => {
+export const useUpdateFolder = (projectId?: string, parentId?: string | null) => {
   const queryClient = useQueryClient();
   return useMutation<
     PatchFolderSuccessResponse["data"],
@@ -351,14 +455,27 @@ export const useUpdateFolder = () => {
     mutationFn: updateFolder,
     onSuccess: (data) => {
       if (data?.id) {
-        queryClient.invalidateQueries({ queryKey: ["folder", data.id] });
-        queryClient.invalidateQueries({ queryKey: ["files"] });
+        // Invalidate specific folder
+        queryClient.invalidateQueries({ queryKey: ["folders", data.id] });
+        // Invalidate parent folder's list if context available
+        if (projectId) {
+          queryClient.invalidateQueries({
+            queryKey: ["folders", projectId, parentId ?? "root"],
+          });
+          queryClient.invalidateQueries({
+            queryKey: ["files", projectId, parentId ?? "root"],
+          });
+        } else {
+          // Fallback to broad invalidation
+          queryClient.invalidateQueries({ queryKey: ["folders"] });
+          queryClient.invalidateQueries({ queryKey: ["files"] });
+        }
       }
     },
   });
 };
 
-export const useDeleteFolder = () => {
+export const useDeleteFolder = (projectId?: string, parentId?: string | null) => {
   const queryClient = useQueryClient();
   return useMutation<
     DeleteFolderSuccess["data"],
@@ -366,9 +483,22 @@ export const useDeleteFolder = () => {
     { folderId: string; force?: boolean }
   >({
     mutationFn: ({ folderId, force }) => deleteFolder(folderId, force),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["folder"] });
-      queryClient.invalidateQueries({ queryKey: ["files"] });
+    onSuccess: (_, { folderId }) => {
+      // Remove specific folder from cache
+      queryClient.removeQueries({ queryKey: ["folders", folderId] });
+      // Invalidate parent folder's list if context available
+      if (projectId) {
+        queryClient.invalidateQueries({
+          queryKey: ["folders", projectId, parentId ?? "root"],
+        });
+        queryClient.invalidateQueries({
+          queryKey: ["files", projectId, parentId ?? "root"],
+        });
+      } else {
+        // Fallback to broad invalidation
+        queryClient.invalidateQueries({ queryKey: ["folders"] });
+        queryClient.invalidateQueries({ queryKey: ["files"] });
+      }
     },
   });
 };
@@ -386,7 +516,8 @@ export const useFolderContents = (
   >
 ) =>
   useQuery({
-    queryKey: ["folder", folderId],
+    queryKey: ["folders", folderId],
     queryFn: () => getFolder(folderId),
+    staleTime: STALE_TIME.FOLDERS,
     ...options,
   });
