@@ -1,5 +1,5 @@
 // components/files/FileCard.tsx
-import React, { useState, useCallback } from "react";
+import React, { useState, useCallback, useMemo } from "react";
 import { MoreVertical } from "lucide-react";
 import { useDeleteFile, useUpdateFile } from "@/lib/files/api";
 import { Loading } from "@/components/editor/files/Loading";
@@ -105,15 +105,21 @@ const FileCardComponent: React.FC<FileCardProps> = ({
     setShowMenu(false);
   }, [file.id]);
 
-  const isImage = file.fileType.startsWith("image/");
-  const isVideo = file.fileType.startsWith("video/");
-  const isPDF = file.fileType === "application/pdf";
-  const isDocument =
-    file.fileType.includes("document") ||
-    file.fileType.includes("text") ||
-    file.fileType.includes("sheet");
+  // Memoize file type checks
+  const fileTypeChecks = useMemo(() => ({
+    isImage: file.fileType.startsWith("image/"),
+    isVideo: file.fileType.startsWith("video/"),
+    isPDF: file.fileType === "application/pdf",
+    isDocument:
+      file.fileType.includes("document") ||
+      file.fileType.includes("text") ||
+      file.fileType.includes("sheet"),
+  }), [file.fileType]);
 
-  const getPreviewContent = () => {
+  const { isImage, isVideo, isPDF, isDocument } = fileTypeChecks;
+
+  // Memoize preview content generation
+  const previewContent = useMemo(() => {
     // Show thumbnail for images (if available and not errored)
     if (isImage && file.fileUrl && !imageError) {
       return (
@@ -178,7 +184,7 @@ const FileCardComponent: React.FC<FileCardProps> = ({
         </div>
       </div>
     );
-  };
+  }, [isImage, isVideo, isPDF, isDocument, file.fileUrl, file.fileType, file.category, imageError]);
 
   if (deleteFile.isPending || updateFile.isPending) {
     return <Loading variant="card" />;
@@ -237,7 +243,7 @@ const FileCardComponent: React.FC<FileCardProps> = ({
         {/* Preview Section - Matches folder icon height exactly */}
         <div className="mx-2 sm:mx-3 mb-2 sm:mb-3 flex-1 flex items-center justify-center">
           <div className="w-full h-20 sm:h-24 md:h-28 lg:h-32 xl:h-36 rounded-md overflow-hidden bg-gray-100 border border-gray-200">
-            {getPreviewContent()}
+            {previewContent}
           </div>
         </div>
 
