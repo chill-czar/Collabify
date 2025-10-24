@@ -243,6 +243,8 @@ export const useFile = (
   });
 
 export const useUpdateFile = (
+  projectId?: string,
+  folderId?: string | null,
   options?: UseMutationOptions<
     NonNullable<PatchFileUpdateResponse["data"]>,
     unknown,
@@ -261,19 +263,28 @@ export const useUpdateFile = (
     mutationFn: updateFile,
     onSuccess: (data) => {
       if (data?.id) {
+        // Invalidate specific file
         queryClient.invalidateQueries({
           queryKey: ["files", data.id],
         });
-        queryClient.invalidateQueries({
-          queryKey: ["files"],
-        });
+        // Invalidate specific project/folder list if provided
+        if (projectId) {
+          queryClient.invalidateQueries({
+            queryKey: ["files", projectId, folderId ?? "root"],
+          });
+        } else {
+          // Fallback to broad invalidation if context not available
+          queryClient.invalidateQueries({
+            queryKey: ["files"],
+          });
+        }
       }
     },
     ...options,
   });
 };
 
-export const useDeleteFile = () => {
+export const useDeleteFile = (projectId?: string, folderId?: string | null) => {
   const queryClient = useQueryClient();
   return useMutation<
     { success: true; message: string },
@@ -282,8 +293,17 @@ export const useDeleteFile = () => {
   >({
     mutationFn: deleteFile,
     onSuccess: (_, fileId) => {
-      queryClient.invalidateQueries({ queryKey: ["files"] });
+      // Remove specific file from cache
       queryClient.removeQueries({ queryKey: ["files", fileId] });
+      // Invalidate specific project/folder list if provided
+      if (projectId) {
+        queryClient.invalidateQueries({
+          queryKey: ["files", projectId, folderId ?? "root"],
+        });
+      } else {
+        // Fallback to broad invalidation if context not available
+        queryClient.invalidateQueries({ queryKey: ["files"] });
+      }
     },
   });
 };
@@ -334,7 +354,7 @@ export const useFolder = (
     ...options,
   });
 
-export const useUpdateFolder = () => {
+export const useUpdateFolder = (projectId?: string, parentId?: string | null) => {
   const queryClient = useQueryClient();
   return useMutation<
     PatchFolderSuccessResponse["data"],
@@ -351,14 +371,27 @@ export const useUpdateFolder = () => {
     mutationFn: updateFolder,
     onSuccess: (data) => {
       if (data?.id) {
+        // Invalidate specific folder
         queryClient.invalidateQueries({ queryKey: ["folders", data.id] });
-        queryClient.invalidateQueries({ queryKey: ["files"] });
+        // Invalidate parent folder's list if context available
+        if (projectId) {
+          queryClient.invalidateQueries({
+            queryKey: ["folders", projectId, parentId ?? "root"],
+          });
+          queryClient.invalidateQueries({
+            queryKey: ["files", projectId, parentId ?? "root"],
+          });
+        } else {
+          // Fallback to broad invalidation
+          queryClient.invalidateQueries({ queryKey: ["folders"] });
+          queryClient.invalidateQueries({ queryKey: ["files"] });
+        }
       }
     },
   });
 };
 
-export const useDeleteFolder = () => {
+export const useDeleteFolder = (projectId?: string, parentId?: string | null) => {
   const queryClient = useQueryClient();
   return useMutation<
     DeleteFolderSuccess["data"],
@@ -366,9 +399,22 @@ export const useDeleteFolder = () => {
     { folderId: string; force?: boolean }
   >({
     mutationFn: ({ folderId, force }) => deleteFolder(folderId, force),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["folders"] });
-      queryClient.invalidateQueries({ queryKey: ["files"] });
+    onSuccess: (_, { folderId }) => {
+      // Remove specific folder from cache
+      queryClient.removeQueries({ queryKey: ["folders", folderId] });
+      // Invalidate parent folder's list if context available
+      if (projectId) {
+        queryClient.invalidateQueries({
+          queryKey: ["folders", projectId, parentId ?? "root"],
+        });
+        queryClient.invalidateQueries({
+          queryKey: ["files", projectId, parentId ?? "root"],
+        });
+      } else {
+        // Fallback to broad invalidation
+        queryClient.invalidateQueries({ queryKey: ["folders"] });
+        queryClient.invalidateQueries({ queryKey: ["files"] });
+      }
     },
   });
 };
