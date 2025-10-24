@@ -285,19 +285,45 @@ export const useUpdateFile = (
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: updateFile,
-    onSuccess: (data) => {
+    // Optimistic update
+    onMutate: async (variables) => {
+      const fileQueryKey = ["files", variables.id];
+
+      // Cancel outgoing refetches
+      await queryClient.cancelQueries({ queryKey: fileQueryKey });
+
+      // Snapshot the previous value
+      const previousFile = queryClient.getQueryData(fileQueryKey);
+
+      // Optimistically update the cache
+      if (previousFile) {
+        queryClient.setQueryData(fileQueryKey, {
+          ...previousFile,
+          ...variables,
+        });
+      }
+
+      // Return context with previous value
+      return { previousFile, fileQueryKey };
+    },
+    onError: (err, variables, context) => {
+      // Rollback on error
+      if (context?.previousFile) {
+        queryClient.setQueryData(context.fileQueryKey, context.previousFile);
+      }
+      options?.onError?.(err, variables, context);
+    },
+    onSettled: (data) => {
       if (data?.id) {
-        // Invalidate specific file
+        // Invalidate to ensure server state is correct
         queryClient.invalidateQueries({
           queryKey: ["files", data.id],
         });
-        // Invalidate specific project/folder list if provided
         if (projectId) {
           queryClient.invalidateQueries({
             queryKey: ["files", projectId, folderId ?? "root"],
           });
         } else {
-          // Fallback to broad invalidation if context not available
           queryClient.invalidateQueries({
             queryKey: ["files"],
           });
@@ -316,16 +342,49 @@ export const useDeleteFile = (projectId?: string, folderId?: string | null) => {
     string // variables = fileId
   >({
     mutationFn: deleteFile,
-    onSuccess: (_, fileId) => {
+    // Optimistic update
+    onMutate: async (fileId) => {
+      const fileQueryKey = ["files", fileId];
+      const listQueryKey = projectId
+        ? ["files", projectId, folderId ?? "root"]
+        : ["files"];
+
+      // Cancel outgoing refetches
+      await queryClient.cancelQueries({ queryKey: fileQueryKey });
+      await queryClient.cancelQueries({ queryKey: listQueryKey });
+
+      // Snapshot previous values
+      const previousFile = queryClient.getQueryData(fileQueryKey);
+      const previousList = queryClient.getQueryData(listQueryKey);
+
+      // Optimistically remove from lists
+      if (previousList && Array.isArray(previousList)) {
+        queryClient.setQueryData(
+          listQueryKey,
+          previousList.filter((f: any) => f.id !== fileId)
+        );
+      }
+
+      return { previousFile, previousList, fileQueryKey, listQueryKey };
+    },
+    onError: (err, fileId, context) => {
+      // Rollback on error
+      if (context?.previousFile) {
+        queryClient.setQueryData(context.fileQueryKey, context.previousFile);
+      }
+      if (context?.previousList) {
+        queryClient.setQueryData(context.listQueryKey, context.previousList);
+      }
+    },
+    onSettled: (_, __, fileId) => {
       // Remove specific file from cache
       queryClient.removeQueries({ queryKey: ["files", fileId] });
-      // Invalidate specific project/folder list if provided
+      // Invalidate lists to ensure consistency
       if (projectId) {
         queryClient.invalidateQueries({
           queryKey: ["files", projectId, folderId ?? "root"],
         });
       } else {
-        // Fallback to broad invalidation if context not available
         queryClient.invalidateQueries({ queryKey: ["files"] });
       }
     },
